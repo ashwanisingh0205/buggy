@@ -21,7 +21,7 @@ const Testimonials: React.FC = () => {
   return (
     <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
       <div className="text-center mb-12">
-        <h2 className="text-2xl md:text-3xl font-bold text-white">What Our <span className="bg-gradient-to-r from-fuchsia-300 to-indigo-300 bg-clip-text text-transparent">Leaders</span> Say</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-white">What Our <span className="text-gradient-primary">Leaders</span> Say</h2>
         <p className="text-sm text-zinc-400 mt-2">Hear from industry pioneers who trust us to steer social media management, benefiting from our innovative solutions and dedicated support.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -44,7 +44,7 @@ const Testimonials: React.FC = () => {
               </div>
             </div>
             <p className="text-zinc-300 text-sm">&ldquo;{t.content}&rdquo;</p>
-            <div className="flex text-yellow-400 mt-3">
+            <div className="flex text-amber-400 mt-3">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} className="w-3.5 h-3.5 fill-current" />
               ))}

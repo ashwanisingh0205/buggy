@@ -1,13 +1,13 @@
 "use client";
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Target, Globe, Shield, Zap, BarChart3, Users } from 'lucide-react';
+import { Target, Globe, Shield, Bolt, BarChart3, Users } from 'lucide-react';
 
 const features = [
   { icon: Target, title: "Smart Targeting", desc: "AI-powered audience segmentation for maximum impact" },
   { icon: Globe, title: "Global Reach", desc: "Expand your presence across all major social platforms" },
   { icon: Shield, title: "Brand Safety", desc: "Protect your brand with intelligent content monitoring" },
-  { icon: Zap, title: "Automation", desc: "Streamline workflows with intelligent automation" },
+  { icon: Bolt, title: "Automation", desc: "Streamline workflows with intelligent automation" },
   { icon: BarChart3, title: "Deep Analytics", desc: "Comprehensive insights into your social performance" },
   { icon: Users, title: "Team Sync", desc: "Collaborate seamlessly with your entire team" },
 ];
@@ -16,7 +16,7 @@ const Features: React.FC = () => {
   return (
     <section id="features" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
       <div className="text-center mb-20">
-        <h2 className="text-2xl md:text-3xl font-bold mb-2 text-white">Unleash the Power of <span className="bg-gradient-to-r from-cyan-300 to-emerald-300 bg-clip-text text-transparent">AI-Driven</span> Marketing</h2>
+        <h2 className="text-2xl md:text-3xl font-bold mb-2 text-white">Unleash the Power of <span className="text-gradient-primary">AI-Driven</span> Marketing</h2>
         <p className="text-sm text-zinc-400 max-w-2xl mx-auto">Transform your social media strategy with our cutting-edge features, designed to enable comprehensive control and predictive insights for unparalleled growth.</p>
       </div>
 

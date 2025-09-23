@@ -25,6 +25,14 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Reusable premium gradient text utility matching background palette */
+.text-gradient-primary {
+  background-image: linear-gradient(90deg, #a78bfa, #60a5fa, #5eead4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 @keyframes float {
   0% { transform: translate3d(0, 0, 0) scale(1); }
   50% { transform: translate3d(0, -24px, 0) scale(1.02); }
@@ -65,3 +73,28 @@ body {
 .drift-delay-1 { animation-delay: .8s; }
 .drift-delay-2 { animation-delay: 1.6s; }
 .drift-delay-3 { animation-delay: 2.2s; }
+
+/* Animated gradient color motion */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-gradient-30 {
+  background-size: 200% 200%;
+  animation: gradient-shift 30s ease-in-out infinite;
+}
+.animate-gradient-45 {
+  background-size: 200% 200%;
+  animation: gradient-shift 45s ease-in-out infinite;
+}
+.animate-gradient-60 {
+  background-size: 200% 200%;
+  animation: gradient-shift 60s ease-in-out infinite;
+}
+
+@keyframes caret {
+  0%, 40% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.animate-caret { animation: caret 1s steps(1) infinite; }

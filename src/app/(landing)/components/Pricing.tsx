@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
 import { motion } from 'framer-motion';
+import Button from '@/Components/ui/Button';
 import { CheckCircle } from 'lucide-react';
 
 type Plan = {
@@ -20,7 +21,7 @@ const Pricing: React.FC = () => {
   return (
     <section id="pricing" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
       <div className="text-center mb-16">
-        <h2 className="text-2xl md:text-3xl font-bold mb-2 text-white">Flexible Plans for Every<span className="bg-gradient-to-r from-emerald-300 to-sky-300 bg-clip-text text-transparent">Vision</span></h2>
+        <h2 className="text-2xl md:text-3xl font-bold mb-2 text-white">Flexible Plans for Every<span className="text-gradient-primary">Vision</span></h2>
         <p className="text-sm text-zinc-400 max-w-2xl mx-auto">Choose the perfect plan to accelerate your social media journey, tailored to scale with your ambitions and deliver unmatched value and capabilities.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -51,9 +52,11 @@ const Pricing: React.FC = () => {
                 </li>
               ))}
             </ul>
-            <button className={`${plan.popular ? 'bg-gradient-to-r from-indigo-600 to-fuchsia-600 shadow-[0_0_24px_rgba(99,102,241,0.35)]' : 'border border-white/15'} w-full py-2.5 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.02]`}>
-              {plan.popular ? 'Choose Pro' : 'Get Started'}
-            </button>
+            {plan.popular ? (
+              <Button size="md" className="w-full">Choose Pro</Button>
+            ) : (
+              <Button variant="outline" size="md" className="w-full">Get Started</Button>
+            )}
           </motion.div>
         ))}
       </div>

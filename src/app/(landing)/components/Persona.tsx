@@ -12,7 +12,7 @@ export default function Persona() {
   return (
     <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
       <div className="text-center mb-8">
-        <h2 className="text-2xl md:text-3xl font-bold text-white">Customer <span className="bg-gradient-to-r from-sky-300 to-emerald-300 bg-clip-text text-transparent">Persona</span></h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-white">Customer <span className="text-gradient-primary">Persona</span></h2>
         <p className="text-sm text-zinc-400 mt-2">Include Brands details</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

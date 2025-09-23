@@ -1,11 +1,11 @@
 "use client";
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Link as LinkIcon, BarChart3, Megaphone } from 'lucide-react';
+import { Link as LinkIcon, LineChart, Megaphone } from 'lucide-react';
 
 const steps = [
   { icon: LinkIcon, title: 'Connect Accounts', desc: 'Securely link your social profiles and unify your data pipeline.' },
-  { icon: BarChart3, title: 'AI-Driven Insights', desc: 'Unlock patterns and recommendations with predictive analytics.' },
+  { icon: LineChart, title: 'AI-Driven Insights', desc: 'Unlock patterns and recommendations with predictive analytics.' },
   { icon: Megaphone, title: 'Amplify & Grow', desc: 'Schedule, publish, and iterate with intelligent automation.' },
 ];
 
@@ -13,7 +13,7 @@ export default function Automation() {
   return (
     <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
       <div className="text-center mb-8">
-        <h2 className="text-2xl md:text-3xl font-bold text-white">Seamlessly Integrate and <span className="bg-gradient-to-r from-fuchsia-300 to-emerald-300 bg-clip-text text-transparent">Automate</span></h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-white">Seamlessly Integrate and <span className="text-gradient-primary">Automate</span></h2>
         <p className="text-sm text-zinc-400 mt-2">Get started in three simple steps and revolutionize your social presence, optimizing workflows and maximizing impact with intelligent automation.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

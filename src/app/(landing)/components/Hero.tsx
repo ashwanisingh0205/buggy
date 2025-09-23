@@ -1,29 +1,69 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaYoutube } from "react-icons/fa";
+import Button from '@/Components/ui/Button';
+import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaYoutube, FaPinterest, FaRedditAlien, FaSlack, FaWhatsapp, FaGithub, FaDiscord } from "react-icons/fa";
 
 const Hero: React.FC = () => {
   return (
     <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24 md:pt-28 pb-20 sm:pb-28 md:pb-36">
       {/* Minimal, tasteful icon accents (hidden on very small screens) */}
       <div className="pointer-events-none absolute inset-0">
-        <FaFacebookF className="hidden sm:block absolute top-16 left-4 sm:left-8 text-indigo-400/20 text-base sm:text-xl animate-float" />
-        <FaYoutube className="hidden sm:block absolute top-20 right-2 sm:right-10 text-rose-400/20 text-lg sm:text-2xl animate-float-slow" />
-        <FaInstagram className="hidden sm:block absolute top-28 left-1/5 sm:left-1/3 text-fuchsia-400/20 text-base sm:text-xl animate-float-slow" />
-        <FaLinkedinIn className="hidden sm:block absolute top-36 right-1/6 sm:right-1/4 text-sky-400/20 text-base sm:text-xl animate-float" />
-        <FaTwitter className="hidden sm:block absolute top-52 left-6 sm:left-24 text-sky-300/20 text-base sm:text-xl animate-float" />
+        {/* Core icons */}
+        <FaFacebookF className="hidden sm:block absolute top-16 left-4 sm:left-8 text-indigo-400/25 text-lg sm:text-2xl animate-drift-a" />
+        <FaYoutube className="hidden sm:block absolute top-20 right-2 sm:right-10 text-rose-400/25 text-xl sm:text-3xl animate-drift-b drift-delay-1" />
+        <FaInstagram className="hidden sm:block absolute top-28 left-1/5 sm:left-1/3 text-fuchsia-400/25 text-lg sm:text-2xl animate-drift-c drift-delay-2" />
+        <FaLinkedinIn className="hidden sm:block absolute top-36 right-1/6 sm:right-1/4 text-sky-400/25 text-lg sm:text-2xl animate-drift-a drift-delay-3" />
+        <FaTwitter className="hidden sm:block absolute top-52 left-6 sm:left-24 text-sky-300/25 text-lg sm:text-2xl animate-drift-b" />
+
+        {/* Extra subtle icons for richness */}
+        <FaPinterest className="hidden sm:block absolute top-[18%] left-[55%] text-rose-400/20 text-lg sm:text-2xl animate-drift-b" style={{animationDuration:'17s'}} />
+        <FaRedditAlien className="hidden sm:block absolute top-[42%] left-[8%] text-orange-400/20 text-lg sm:text-2xl animate-drift-c" style={{animationDuration:'19s', animationDelay:'1.2s'}} />
+        <FaSlack className="hidden sm:block absolute top-[38%] right-[12%] text-purple-300/20 text-lg sm:text-2xl animate-drift-a" style={{animationDuration:'16s', animationDelay:'0.6s'}} />
+        <FaWhatsapp className="hidden sm:block absolute top-[62%] left-[18%] text-emerald-400/20 text-lg sm:text-2xl animate-drift-b" style={{animationDuration:'18s'}} />
+        <FaGithub className="hidden sm:block absolute top-[8%] right-[22%] text-zinc-300/20 text-lg sm:text-2xl animate-drift-c" style={{animationDuration:'20s'}} />
+        <FaDiscord className="hidden sm:block absolute top-[70%] right-[8%] text-indigo-300/20 text-lg sm:text-2xl animate-drift-a" style={{animationDuration:'22s', animationDelay:'0.8s'}} />
       </div>
       <div className="text-center">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-3xl sm:text-5xl md:text-6xl lg:text-[4rem] font-extrabold mb-4 text-white leading-[1.1] sm:leading-[1.08] md:leading-[1.05] tracking-[-0.01em] sm:tracking-[-0.015em] md:tracking-[-0.02em] max-w-4xl mx-auto px-1"
-        >
-          Your <span className="bg-gradient-to-r from-indigo-300 via-sky-300 to-emerald-300 bg-clip-text text-transparent">social media</span> workspace
-        </motion.h1>
+        {(() => {
+          const words = ["workspace", "center", "OS"];
+          const [index, setIndex] = useState(0);
+          const [subIndex, setSubIndex] = useState(0);
+          const [deleting, setDeleting] = useState(false);
+
+          useEffect(() => {
+            const current = words[index];
+            const atWordEnd = subIndex === current.length;
+            const atWordStart = subIndex === 0;
+
+            const timeout = setTimeout(() => {
+              setSubIndex((prev) => prev + (deleting ? -1 : 1));
+              if (!deleting && atWordEnd) {
+                setDeleting(true);
+              } else if (deleting && atWordStart) {
+                setDeleting(false);
+                setIndex((prev) => (prev + 1) % words.length);
+              }
+            }, deleting ? 65 : 95);
+            return () => clearTimeout(timeout);
+          }, [subIndex, deleting, index]);
+
+          return (
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-2xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold mb-4 text-white leading-[1.12] sm:leading-[1.1] md:leading-[1.06] tracking-[-0.01em] sm:tracking-[-0.015em] md:tracking-[-0.02em] max-w-3xl sm:max-w-4xl mx-auto px-1"
+            >
+              Your <span className="text-gradient-primary">social media</span>{' '}
+              <span className="text-gradient-primary">
+                {words[index].substring(0, subIndex)}
+              </span>
+              <span className="ml-1 inline-block h-[1em] w-px align-middle bg-white/70 animate-caret" />
+            </motion.h1>
+          );
+        })()}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -54,10 +94,10 @@ const Hero: React.FC = () => {
             placeholder="Work email"
             className="flex-1 bg-transparent px-3 sm:px-4 py-2 text-sm text-zinc-200 placeholder:text-zinc-500 focus:outline-none w-full"
           />
-          <button className="rounded-full bg-gradient-to-r from-indigo-500 to-cyan-500 px-4 sm:px-5 py-2 text-sm font-semibold text-white shadow-[0_0_24px_rgba(99,102,241,0.35)] hover:scale-[1.02] transition w-full sm:w-auto">
+          <Button size="md" className="w-full sm:w-auto">
             Start free trial
             <ArrowRight className="inline-block ml-2 w-4 h-4" />
-          </button>
+          </Button>
         </motion.form>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
