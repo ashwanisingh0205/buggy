@@ -18,7 +18,7 @@ const plans: Plan[] = [
 
 const Pricing: React.FC = () => {
   return (
-    <section id="pricing" className="relative z-10 max-w-7xl mx-auto px-6 py-28">
+    <section id="pricing" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
       <div className="text-center mb-16">
         <h2 className="text-2xl md:text-3xl font-bold mb-2 text-white">Flexible Plans for Every<span className="bg-gradient-to-r from-emerald-300 to-sky-300 bg-clip-text text-transparent">Vision</span></h2>
         <p className="text-sm text-zinc-400 max-w-2xl mx-auto">Choose the perfect plan to accelerate your social media journey, tailored to scale with your ambitions and deliver unmatched value and capabilities.</p>

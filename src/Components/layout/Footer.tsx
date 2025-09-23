@@ -3,7 +3,7 @@ import React from 'react'
 
 const Footer = () => {
   return (
-         <footer className="relative z-10 border-t border-gray-800/50 px-6 py-16">
+         <footer className="relative z-10 border-t border-white/[0.06] px-6 py-16 backdrop-blur bg-white/[0.02]">
         <div className="max-w-7xl mx-auto text-gray-300 grid grid-cols-1 md:grid-cols-4 gap-10">
           <div>
             <div className="flex items-center space-x-2 mb-4">
@@ -17,25 +17,25 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-3">Product</h4>
             <ul className="space-y-2 text-gray-400">
-              <li><a href="#features" className="hover:text-white">Features</a></li>
-              <li><a href="#" className="hover:text-white">Use Cases</a></li>
-              <li><a href="#" className="hover:text-white">Integrations</a></li>
+              <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Use Cases</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Integrations</a></li>
             </ul>
           </div>
           <div>
             <h4 className="font-semibold mb-3">Resources</h4>
             <ul className="space-y-2 text-gray-400">
-              <li><a href="#" className="hover:text-white">Blog</a></li>
-              <li><a href="#" className="hover:text-white">Docs</a></li>
-              <li><a href="#" className="hover:text-white">Support</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Docs</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Support</a></li>
             </ul>
           </div>
           <div>
             <h4 className="font-semibold mb-3">Company</h4>
             <ul className="space-y-2 text-gray-400">
-              <li><a href="#" className="hover:text-white">About</a></li>
-              <li><a href="#" className="hover:text-white">Careers</a></li>
-              <li><a href="#" className="hover:text-white">Privacy & Terms</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">About</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Privacy & Terms</a></li>
             </ul>
           </div>
         </div>

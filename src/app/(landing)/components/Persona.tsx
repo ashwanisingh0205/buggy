@@ -10,7 +10,7 @@ const personas = [
 
 export default function Persona() {
   return (
-    <section className="relative z-10 max-w-6xl mx-auto px-6 py-20">
+    <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
       <div className="text-center mb-8">
         <h2 className="text-2xl md:text-3xl font-bold text-white">Customer <span className="bg-gradient-to-r from-sky-300 to-emerald-300 bg-clip-text text-transparent">Persona</span></h2>
         <p className="text-sm text-zinc-400 mt-2">Include Brands details</p>
@@ -23,7 +23,7 @@ export default function Persona() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.4, delay: i * 0.05 }}
-            className="rounded-2xl p-6 bg-white/5 border border-white/10 backdrop-blur"
+            className="rounded-2xl p-6 bg-white/[0.04] border border-white/10 backdrop-blur hover:border-white/20 transition"
           >
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 flex items-center justify-center">

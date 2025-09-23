@@ -14,7 +14,7 @@ const features = [
 
 const Features: React.FC = () => {
   return (
-    <section id="features" className="relative z-10 max-w-7xl mx-auto px-6 py-24">
+    <section id="features" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
       <div className="text-center mb-20">
         <h2 className="text-2xl md:text-3xl font-bold mb-2 text-white">Unleash the Power of <span className="bg-gradient-to-r from-cyan-300 to-emerald-300 bg-clip-text text-transparent">AI-Driven</span> Marketing</h2>
         <p className="text-sm text-zinc-400 max-w-2xl mx-auto">Transform your social media strategy with our cutting-edge features, designed to enable comprehensive control and predictive insights for unparalleled growth.</p>
@@ -28,7 +28,7 @@ const Features: React.FC = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.4, delay: index * 0.05 }}
-            className="group rounded-2xl p-6 bg-white/5 border border-white/10 backdrop-blur hover:border-white/20 transition"
+            className="group rounded-2xl p-6 bg-white/[0.04] border border-white/10 backdrop-blur hover:border-white/20 hover:shadow-[0_0_24px_rgba(99,102,241,0.15)] transition"
           >
             <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 flex items-center justify-center mb-4">
               <feature.icon className="w-6 h-6 text-white" />
