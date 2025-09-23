@@ -14,17 +14,13 @@ const features = [
 
 const Features: React.FC = () => {
   return (
-    <section id="features" className="relative z-10 max-w-7xl mx-auto px-6 py-32">
+    <section id="features" className="relative z-10 max-w-7xl mx-auto px-6 py-24">
       <div className="text-center mb-20">
-        <h2 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white to-purple-300 bg-clip-text text-transparent">
-          Seamlessly Integrate and Optimize
-        </h2>
-        <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-          Connect all your social platforms and leverage AI-powered insights to maximize your reach and engagement
-        </p>
+        <h2 className="text-2xl md:text-3xl font-bold mb-2 text-white">Unleash the Power of <span className="bg-gradient-to-r from-cyan-300 to-emerald-300 bg-clip-text text-transparent">AI-Driven</span> Marketing</h2>
+        <p className="text-sm text-zinc-400 max-w-2xl mx-auto">Transform your social media strategy with our cutting-edge features, designed to enable comprehensive control and predictive insights for unparalleled growth.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {features.map((feature, index) => (
           <motion.div
             key={feature.title}
@@ -32,13 +28,13 @@ const Features: React.FC = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.4, delay: index * 0.05 }}
-            className="group bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8 hover:bg-gray-800/50 transition-all duration-300 hover:transform hover:scale-105"
+            className="group rounded-2xl p-6 bg-white/5 border border-white/10 backdrop-blur hover:border-white/20 transition"
           >
-            <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mb-6 group-hover:shadow-lg group-hover:shadow-purple-500/25 transition-all duration-300">
-              <feature.icon className="w-8 h-8 text-white" />
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 flex items-center justify-center mb-4">
+              <feature.icon className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-xl font-semibold mb-4">{feature.title}</h3>
-            <p className="text-gray-300 leading-relaxed">{feature.desc}</p>
+            <h3 className="text-base font-semibold mb-2 text-white">{feature.title}</h3>
+            <p className="text-zinc-400 text-sm leading-relaxed">{feature.desc}</p>
           </motion.div>
         ))}
       </div>

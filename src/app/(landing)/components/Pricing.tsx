@@ -18,12 +18,12 @@ const plans: Plan[] = [
 
 const Pricing: React.FC = () => {
   return (
-    <section id="pricing" className="relative z-10 max-w-7xl mx-auto px-6 py-32">
-      <div className="text-center mb-20">
-        <h2 className="text-4xl md:text-6xl font-bold mb-6">Flexible Plans for Everyone</h2>
-        <p className="text-xl text-gray-300">Choose the perfect plan to accelerate your social media growth</p>
+    <section id="pricing" className="relative z-10 max-w-7xl mx-auto px-6 py-28">
+      <div className="text-center mb-16">
+        <h2 className="text-2xl md:text-3xl font-bold mb-2 text-white">Flexible Plans for Every<span className="bg-gradient-to-r from-emerald-300 to-sky-300 bg-clip-text text-transparent">Vision</span></h2>
+        <p className="text-sm text-zinc-400 max-w-2xl mx-auto">Choose the perfect plan to accelerate your social media journey, tailored to scale with your ambitions and deliver unmatched value and capabilities.</p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {plans.map((plan, index) => (
           <motion.div
             key={plan.name}
@@ -31,30 +31,28 @@ const Pricing: React.FC = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.4, delay: index * 0.05 }}
-            className={`relative bg-gray-800/40 backdrop-blur-sm border rounded-2xl p-8 transition-all duration-300 hover:transform hover:scale-105 ${plan.popular ? 'border-purple-500 bg-gray-800/60' : 'border-gray-700/50'}`}
+            className={`relative rounded-2xl p-6 bg-white/5 border ${plan.popular ? 'border-indigo-400/40' : 'border-white/10'} backdrop-blur transition-all duration-300`}
           >
             {plan.popular && (
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 rounded-full text-sm font-semibold">
-                Most Popular
-              </div>
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-fuchsia-500 px-4 py-1.5 rounded-full text-xs font-semibold text-white shadow-[0_0_20px_rgba(99,102,241,0.35)]">Most Popular</div>
             )}
-            <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-              <div className="text-4xl font-bold mb-2">
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-bold mb-2 text-white">{plan.name}</h3>
+              <div className="text-3xl font-bold mb-2 text-white">
                 ${plan.price}
-                <span className="text-lg text-gray-400">/month</span>
+                <span className="text-sm text-zinc-400"> / month</span>
               </div>
             </div>
-            <ul className="space-y-4 mb-8">
+            <ul className="space-y-3 mb-6">
               {plan.features.map((feature) => (
-                <li key={feature} className="flex items-center space-x-3">
-                  <CheckCircle className="w-5 h-5 text-green-400" />
+                <li key={feature} className="flex items-center gap-2 text-sm text-zinc-300">
+                  <CheckCircle className="w-4 h-4 text-emerald-400" />
                   <span>{feature}</span>
                 </li>
               ))}
             </ul>
-            <button className={`${plan.popular ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:shadow-lg hover:shadow-purple-500/25' : 'border border-gray-600 hover:bg-gray-700'} w-full py-3 rounded-full font-semibold transition-all duration-300`}>
-              Get Started
+            <button className={`${plan.popular ? 'bg-gradient-to-r from-indigo-600 to-fuchsia-600 shadow-[0_0_24px_rgba(99,102,241,0.35)]' : 'border border-white/15'} w-full py-2.5 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.02]`}>
+              {plan.popular ? 'Choose Pro' : 'Get Started'}
             </button>
           </motion.div>
         ))}
