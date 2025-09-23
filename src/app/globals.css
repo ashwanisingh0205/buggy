@@ -24,3 +24,21 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes float {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(0, -24px, 0) scale(1.02); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes float-slow {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-20px, -16px, 0) scale(1.03); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes sweep {
+  0% { transform: translateX(-30%); }
+  100% { transform: translateX(30%); }
+}
+.animate-float { animation: float 9s ease-in-out infinite; will-change: transform; }
+.animate-float-slow { animation: float-slow 14s ease-in-out infinite; will-change: transform; }
+.animate-sweep { animation: sweep 10s ease-in-out infinite alternate; }
