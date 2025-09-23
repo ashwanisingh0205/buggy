@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Bloocube Frontend
 
-## Getting Started
+Landing experience for Bloocube built with Next.js (App Router), TypeScript and Tailwind CSS.
 
-First, run the development server:
+### Tech
+- Next.js 15 (App Router)
+- TypeScript
+- Tailwind CSS 4
+- Framer Motion (section animations)
+- React Icons / Lucide (iconography)
+
+### Structure (relevant)
+- `src/app/(landing)` – landing route group
+  - `layout.tsx` – global dark background and premium gradient blobs
+  - `page.tsx` – section composition
+  - `components/` – Hero, Persona, Features, Automation, Visualization, Testimonials, Pricing
+- `src/components/layout` – `Navbar`, `Footer`
+- `src/components/ui/Button.tsx` – shared button with variants
+
+### Getting Started
+
+Install deps and run dev server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Design System Notes
+- Text colors are unified; gradient emphasis uses `.text-gradient-primary` (purple → blue → teal) defined in `src/app/globals.css`.
+- Buttons should use `src/components/ui/Button.tsx`:
+  - Primary: `<Button>...</Button>`
+  - Outline: `<Button variant="outline">...</Button>`
+  - Sizes: `sm | md | lg`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Hero Interactions
+- Social media icons have subtle “wander” motion (premium, slow drift).
+- Typewriter effect animates a word in the headline.
+- Optional (if present): a canvas can draw animated connections from `.social-icon` elements to `#bloocube-logo` using requestAnimationFrame.
 
-## Learn More
+### Production Build
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run build
+npm run start
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Conventions
+- Keep new emphasized words using `.text-gradient-primary` for visual consistency.
+- Prefer the shared `Button` component over custom inline button styles.
+- Icons should use consistent sizes and glass card patterns used across sections.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
