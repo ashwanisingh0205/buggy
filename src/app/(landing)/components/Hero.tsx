@@ -6,6 +6,29 @@ import Button from '@/Components/ui/Button';
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaYoutube, FaPinterest, FaRedditAlien, FaSlack, FaWhatsapp, FaGithub, FaDiscord } from "react-icons/fa";
 
 const Hero: React.FC = () => {
+  // Typewriter state (must be at top-level for hooks rules)
+  const words = ["workspace", "center", "OS"];
+  const [index, setIndex] = useState(0);
+  const [subIndex, setSubIndex] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    const current = words[index];
+    const atWordEnd = subIndex === current.length;
+    const atWordStart = subIndex === 0;
+
+    const timeout = setTimeout(() => {
+      setSubIndex((prev) => prev + (deleting ? -1 : 1));
+      if (!deleting && atWordEnd) {
+        setDeleting(true);
+      } else if (deleting && atWordStart) {
+        setDeleting(false);
+        setIndex((prev) => (prev + 1) % words.length);
+      }
+    }, deleting ? 65 : 95);
+    return () => clearTimeout(timeout);
+  }, [subIndex, deleting, index, words]);
+
   return (
     <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24 md:pt-28 pb-20 sm:pb-28 md:pb-36">
       {/* Minimal, tasteful icon accents (hidden on very small screens) */}
@@ -26,44 +49,16 @@ const Hero: React.FC = () => {
         <FaDiscord className="hidden sm:block absolute top-[70%] right-[8%] text-indigo-300/20 text-lg sm:text-2xl animate-drift-a" style={{animationDuration:'22s', animationDelay:'0.8s'}} />
       </div>
       <div className="text-center">
-        {(() => {
-          const words = ["workspace", "center", "OS"];
-          const [index, setIndex] = useState(0);
-          const [subIndex, setSubIndex] = useState(0);
-          const [deleting, setDeleting] = useState(false);
-
-          useEffect(() => {
-            const current = words[index];
-            const atWordEnd = subIndex === current.length;
-            const atWordStart = subIndex === 0;
-
-            const timeout = setTimeout(() => {
-              setSubIndex((prev) => prev + (deleting ? -1 : 1));
-              if (!deleting && atWordEnd) {
-                setDeleting(true);
-              } else if (deleting && atWordStart) {
-                setDeleting(false);
-                setIndex((prev) => (prev + 1) % words.length);
-              }
-            }, deleting ? 65 : 95);
-            return () => clearTimeout(timeout);
-          }, [subIndex, deleting, index]);
-
-          return (
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-2xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold mb-4 text-white leading-[1.12] sm:leading-[1.1] md:leading-[1.06] tracking-[-0.01em] sm:tracking-[-0.015em] md:tracking-[-0.02em] max-w-3xl sm:max-w-4xl mx-auto px-1"
-            >
-              Your <span className="text-gradient-primary">social media</span>{' '}
-              <span className="text-gradient-primary">
-                {words[index].substring(0, subIndex)}
-              </span>
-              <span className="ml-1 inline-block h-[1em] w-px align-middle bg-white/70 animate-caret" />
-            </motion.h1>
-          );
-        })()}
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-2xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold mb-4 text-white leading-[1.12] sm:leading-[1.1] md:leading-[1.06] tracking-[-0.01em] sm:tracking-[-0.015em] md:tracking-[-0.02em] max-w-3xl sm:max-w-4xl mx-auto px-1"
+        >
+          Your <span className="text-gradient-primary">social media</span>{' '}
+          <span className="text-gradient-primary">{words[index].substring(0, subIndex)}</span>
+          <span className="ml-1 inline-block h-[1em] w-px align-middle bg-white/70 animate-caret" />
+        </motion.h1>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
