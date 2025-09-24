@@ -17,6 +17,8 @@ Landing experience for Bloocube built with Next.js (App Router), TypeScript and 
 - `src/components/layout` – `Navbar`, `Footer`
 - `src/components/ui/Button.tsx` – shared button with variants
 
+eojgiojgioejiogj4ioj
+
 ### Getting Started
 
 Install deps and run dev server:
