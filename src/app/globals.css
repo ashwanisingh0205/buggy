@@ -27,6 +27,30 @@
   }
 }
 
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  /* Reduce animation complexity on mobile */
+  .animate-drift-a,
+  .animate-drift-b,
+  .animate-drift-c {
+    animation-duration: 25s !important;
+    animation-timing-function: linear !important;
+  }
+  
+  /* Disable heavy animations on mobile */
+  .animate-gradient-30,
+  .animate-gradient-45,
+  .animate-gradient-60 {
+    animation-duration: 30s !important;
+  }
+  
+  /* Optimize floating animations */
+  .animate-float,
+  .animate-float-slow {
+    animation-duration: 8s !important;
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
