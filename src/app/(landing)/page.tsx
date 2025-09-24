@@ -11,13 +11,13 @@ import Pricing from './components/Pricing';
 export default function LandingPage() {
   return (
     <>
-      <Hero />
-      <Persona />
-      <Features />
-      <Automation />
-      <Visualization />
-      <Testimonials />
-      <Pricing />
+      <div className="vis-lazy"><Hero /></div>
+      <div className="vis-lazy"><Persona /></div>
+      <div className="vis-lazy"><Features /></div>
+      <div className="vis-lazy"><Automation /></div>
+      <div className="vis-lazy"><Visualization /></div>
+      <div className="vis-lazy"><Testimonials /></div>
+      <div className="vis-lazy"><Pricing /></div>
     </>
   );
 }

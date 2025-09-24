@@ -25,6 +25,12 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Performance: only render sections when near viewport */
+.vis-lazy {
+  content-visibility: auto;
+  contain-intrinsic-size: 800px;
+}
+
 /* Reusable premium gradient text utility matching background palette */
 .text-gradient-primary {
   background-image: linear-gradient(90deg, #a78bfa, #60a5fa, #5eead4);
@@ -47,8 +53,8 @@ body {
   0% { transform: translateX(-30%); }
   100% { transform: translateX(30%); }
 }
-.animate-float { animation: float 12s ease-in-out infinite; will-change: transform; }
-.animate-float-slow { animation: float-slow 16s ease-in-out infinite; will-change: transform; }
+.animate-float { animation: float 12s ease-in-out infinite; will-change: transform; transform: translateZ(0); }
+.animate-float-slow { animation: float-slow 16s ease-in-out infinite; will-change: transform; transform: translateZ(0); }
 .animate-sweep { animation: sweep 14s ease-in-out infinite alternate; }
 
 /* Premium free-motion icon drifts */
