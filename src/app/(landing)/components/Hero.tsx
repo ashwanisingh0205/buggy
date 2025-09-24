@@ -25,7 +25,7 @@ const Hero: React.FC = () => {
         setDeleting(false);
         setIndex((prev) => (prev + 1) % words.length);
       }
-    }, deleting ? 65 : 95);
+    }, deleting ? 75 : 105);
     return () => clearTimeout(timeout);
   }, [subIndex, deleting, index]);
 

@@ -16,7 +16,7 @@ const Navbar = () => {
         initial={{ y: -16, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
-        className={`sticky top-0 z-50 border-b border-white/[0.06] backdrop-blur supports-[backdrop-filter]:bg-black/55 bg-black/70 px-4 md:px-6 py-2.5 transition-[background,transform,opacity] duration-500 ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}
+        className={`sticky top-0 z-50 border-b border-white/[0.06] md:backdrop-blur supports-[backdrop-filter]:md:bg-black/55 bg-black/80 px-4 md:px-6 py-2.5 transition-[background,transform,opacity] duration-500 ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}
       >
         <div className="max-w-7xl mx-auto flex h-12 md:h-14 items-center justify-between">
           <a href="#" className="group flex items-center gap-2">
