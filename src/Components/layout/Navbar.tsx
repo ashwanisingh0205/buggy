@@ -10,8 +10,6 @@ const Navbar = () => {
     
       useEffect(() => {
         setIsVisible(true);
-        const interval = setInterval(() => {}, 3000);
-        return () => clearInterval(interval);
       }, []);
   return (
       <motion.nav

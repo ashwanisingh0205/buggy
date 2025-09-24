@@ -47,9 +47,9 @@ body {
   0% { transform: translateX(-30%); }
   100% { transform: translateX(30%); }
 }
-.animate-float { animation: float 9s ease-in-out infinite; will-change: transform; }
-.animate-float-slow { animation: float-slow 14s ease-in-out infinite; will-change: transform; }
-.animate-sweep { animation: sweep 10s ease-in-out infinite alternate; }
+.animate-float { animation: float 12s ease-in-out infinite; will-change: transform; }
+.animate-float-slow { animation: float-slow 16s ease-in-out infinite; will-change: transform; }
+.animate-sweep { animation: sweep 14s ease-in-out infinite alternate; }
 
 /* Premium free-motion icon drifts */
 @keyframes drift-a {
@@ -67,9 +67,9 @@ body {
   50% { transform: translate3d(8px, -10px, 0) rotate(-5deg); }
   100% { transform: translate3d(2px, 2px, 0) rotate(0deg); }
 }
-.animate-drift-a { animation: drift-a 12s ease-in-out infinite; will-change: transform; }
-.animate-drift-b { animation: drift-b 15s ease-in-out infinite; will-change: transform; }
-.animate-drift-c { animation: drift-c 18s ease-in-out infinite; will-change: transform; }
+.animate-drift-a { animation: drift-a 16s ease-in-out infinite; will-change: transform; }
+.animate-drift-b { animation: drift-b 18s ease-in-out infinite; will-change: transform; }
+.animate-drift-c { animation: drift-c 22s ease-in-out infinite; will-change: transform; }
 .drift-delay-1 { animation-delay: .8s; }
 .drift-delay-2 { animation-delay: 1.6s; }
 .drift-delay-3 { animation-delay: 2.2s; }

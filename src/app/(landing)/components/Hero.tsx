@@ -27,7 +27,7 @@ const Hero: React.FC = () => {
       }
     }, deleting ? 65 : 95);
     return () => clearTimeout(timeout);
-  }, [subIndex, deleting, index, words]);
+  }, [subIndex, deleting, index]);
 
   return (
     <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24 md:pt-28 pb-20 sm:pb-28 md:pb-36">
