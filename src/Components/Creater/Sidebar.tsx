@@ -11,7 +11,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 
 const sidebarItems = [
-  { name: 'Overview', icon: Home, href: '/creator/overview' },
+  { name: 'Overview', icon: Home, href: '/creator' },
   { name: 'Posts', icon: FileText, href: '/creator/posts' },
   { name: 'Analytics', icon: BarChart3, href: '/creator/analytics' },
   { name: 'Competitor Analysis', icon: Users, href: '/creator/competitors' },

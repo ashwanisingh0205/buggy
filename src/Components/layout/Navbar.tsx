@@ -3,6 +3,7 @@ import { Zap, Menu, X } from 'lucide-react';
 import Button from '@/Components/ui/Button';
 import React,{useState,useEffect} from 'react'
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 const Navbar = () => {
     const [isVisible, setIsVisible] = useState(false);
@@ -40,7 +41,11 @@ const Navbar = () => {
                 <span className="absolute left-0 -bottom-1 h-px w-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-sky-500 transition-all duration-300 group-hover:w-full" />
               </a>
             ))}
-            <Button size="sm" className="px-5 py-2">Get Started</Button>
+            <Link href="/signup" passHref>
+      <Button size="sm" className="mt-1 px-4 py-2 w-full">
+        Get Started
+      </Button>
+    </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -60,7 +65,11 @@ const Navbar = () => {
               <a href="#pricing" className="text-zinc-300 hover:text-white transition" onClick={() => setOpen(false)}>Pricing</a>
               <a href="#" className="text-zinc-300 hover:text-white transition" onClick={() => setOpen(false)}>Resources</a>
               <a href="#" className="text-zinc-300 hover:text-white transition" onClick={() => setOpen(false)}>Product</a>
-              <Button size="sm" className="mt-1 px-4 py-2 w-full">Get Started</Button>
+               <Link href="/signup" passHref>
+      <Button size="sm" className="mt-1 px-4 py-2 w-full">
+        Get Started
+      </Button>
+    </Link>
             </div>
           </div>
         )}
