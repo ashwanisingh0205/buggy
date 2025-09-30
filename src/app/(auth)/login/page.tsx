@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Button from "@/Components/ui/Button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { config } from "@/lib/config";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL; // ✅ from env
 
@@ -54,6 +55,31 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  const handleGoogle = async () => {
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (!token) {
+        // allow starting Google without app auth; fall back to state with anonymous marker
+        localStorage.setItem('token', 'guest');
+      }
+      const callbackUrl = `${window.location.origin}/auth/google/callback`;
+      const res = await fetch(`${API_BASE_URL}/api/google/auth-url`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token') || 'guest'}` },
+        body: JSON.stringify({ redirectUri: callbackUrl })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success || !data.authURL) {
+        setError(data.message || data.error || 'Failed to start Google auth');
+        return;
+      }
+      localStorage.setItem('google_state', data.state || '');
+      window.location.href = data.authURL;
+    } catch (e: any) {
+      setError(e.message || 'Failed to start Google auth');
+    }
+  };
+
   return (
     <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-black px-4">
       <motion.div
@@ -90,6 +116,11 @@ const LoginPage: React.FC = () => {
           <Link href="/signup" className="hover:text-white">
             Sign Up
           </Link>
+        </div>
+        <div className="mt-6">
+          <button onClick={handleGoogle} className="w-full bg-white text-black rounded-xl py-2 font-medium hover:bg-gray-100">
+            Continue with Google
+          </button>
         </div>
       </motion.div>
     </section>
