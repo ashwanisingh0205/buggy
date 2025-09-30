@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Eye, EyeOff, Menu } from "lucide-react";
 import Sidebar from "@/Components/Creater/Sidebar";
 import { TwitterIntegration } from "@/Components/Twitter/TwitterIntegration";
+import { LinkedInIntegration } from "@/Components/LinkedIn/LinkedInIntegration";
 
 interface FormData {
   email: string;
@@ -251,20 +252,7 @@ export default function SettingsPage() {
 
                 <TwitterIntegration />
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-200 rounded-lg gap-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <span className="text-blue-600 font-medium text-sm">in</span>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">LinkedIn</p>
-                      <p className="text-sm text-gray-500">Not connected</p>
-                    </div>
-                  </div>
-                  <button className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition-colors">
-                    Disconnect
-                  </button>
-                </div>
+                <LinkedInIntegration />
               </div>
             </section>
 
