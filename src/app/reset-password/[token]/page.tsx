@@ -1,37 +1,47 @@
 "use client";
+
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Button from "@/Components/ui/Button";
 
-const ForgotPasswordPage: React.FC = () => {
-  const [email, setEmail] = useState("");
+export default function ResetPasswordTokenPage({ params }: { params: { token: string } }) {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setMessage(null);
 
-    if (!email) {
-      setError("Please enter your email");
+    if (!password || password.length < 8) {
+      setError("Password must be at least 8 characters");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
       return;
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/request-password-reset`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/reset-password/${params.token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ newPassword: password }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || data.error || "Failed to send reset email");
+        throw new Error(data.message || data.error || "Failed to reset password");
       }
 
-      setMessage("If an account exists, a reset link has been sent to your email.");
+      setMessage("Password reset successful! Redirecting to login...");
+      setTimeout(() => router.push("/login"), 1500);
     } catch (err: any) {
       setError(err.message);
     }
@@ -45,17 +55,24 @@ const ForgotPasswordPage: React.FC = () => {
         transition={{ duration: 0.6 }}
         className="w-full max-w-md bg-black/70 backdrop-blur-md rounded-3xl p-8 text-white"
       >
-        <h2 className="text-2xl font-bold mb-6 text-center">Forgot Password</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">Reset Password</h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="password"
+            placeholder="New password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="px-4 py-2 rounded-xl bg-white/10 placeholder:text-white/50 focus:outline-none"
+          />
+          <input
+            type="password"
+            placeholder="Confirm new password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             className="px-4 py-2 rounded-xl bg-white/10 placeholder:text-white/50 focus:outline-none"
           />
           <Button type="submit" size="md" className="w-full mt-2">
-            Send Reset Link
+            Reset Password
           </Button>
         </form>
 
@@ -64,6 +81,7 @@ const ForgotPasswordPage: React.FC = () => {
       </motion.div>
     </section>
   );
-};
+}
 
-export default ForgotPasswordPage;
+
+
