@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Eye, EyeOff, Menu } from "lucide-react";
 import Sidebar from "@/Components/Creater/Sidebar";
+import { TwitterIntegration } from "@/Components/Twitter/TwitterIntegration";
 
 interface FormData {
   email: string;
@@ -248,20 +249,7 @@ export default function SettingsPage() {
                   </button>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-200 rounded-lg gap-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-                      <span className="text-white font-medium text-sm">X</span>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">X (Twitter)</p>
-                      <p className="text-sm text-gray-500">Not connected</p>
-                    </div>
-                  </div>
-                  <button className="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-300 transition-colors">
-                    Connect
-                  </button>
-                </div>
+                <TwitterIntegration />
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-200 rounded-lg gap-3">
                   <div className="flex items-center space-x-3">

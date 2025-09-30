@@ -5,14 +5,13 @@ import Button from "@/Components/ui/Button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL; // ✅ from env
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-const router = useRouter();
-
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,23 +28,30 @@ const router = useRouter();
       return;
     }
 
-    // Development mode - bypass backend
-    console.log("Development login for:", email);
-    
-    // Create mock token and user data
-    const mockToken = `dev_token_${Date.now()}`;
-    const mockUser = {
-      email,
-      name: email.split('@')[0],
-      role: 'creator'
-    };
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    // Save to localStorage
-    localStorage.setItem("token", mockToken);
-    localStorage.setItem("user", JSON.stringify(mockUser));
+      const data = await response.json();
 
-    // Redirect to dashboard
-    router.push("/creator");
+      if (!response.ok) {
+        setError(data.message || "Login failed");
+        return;
+      }
+
+      // Assuming backend returns { token, user }
+      localStorage.setItem("token", data.data.tokens.accessToken);
+      localStorage.setItem("user", JSON.stringify(data.data.user));
+      
+
+      router.push("/creator");
+    } catch (err: any) {
+      setError("Network error. Please try again later.");
+      console.error("Login error:", err.message);
+    }
   };
 
   return (

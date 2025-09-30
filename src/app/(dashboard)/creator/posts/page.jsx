@@ -1,8 +1,9 @@
-'use client'
+'use client';
 
-import React, { useState } from 'react';
+import React, { useState , useEffect} from 'react';
 import { Calendar, Upload, MoreHorizontal, Facebook, Instagram, Twitter, Linkedin, BarChart3, Users, MessageCircle, Heart, Share, Eye } from 'lucide-react';
 import Sidebar from '@/Components/Creater/Sidebar';
+import { TwitterPost } from '@/Components/Twitter/TwitterPost';
 
 export default function PostsPage() {
   const [activeTab, setActiveTab] = useState('create');
@@ -13,11 +14,14 @@ export default function PostsPage() {
     twitter: false,
     linkedin: false
   });
-
+  const [time, setTime] = useState(null);
+  useEffect(() => {
+    setTime(new Date().toLocaleString());
+  }, []);
   const scheduledPosts = [
     {
       id: 1,
-      preview: '/api/placeholder/60/60',
+      preview: '/api/placeholder.png',
       content: 'Excited to announce...',
       platforms: ['instagram'],
       scheduledFor: '2024-07-04 10:00 AM',
@@ -232,6 +236,11 @@ export default function PostsPage() {
                   </button>
                 </div>
               </div>
+            </div>
+
+            {/* Twitter Posting Section */}
+            <div className="mb-6">
+              <TwitterPost />
             </div>
 
             {/* Scheduled Posts Section */}

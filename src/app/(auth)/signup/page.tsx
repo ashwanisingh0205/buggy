@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import Button from "@/Components/ui/Button";
 import Link from "next/link";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL; // ✅ from env
+
 const SignupPage: React.FC = () => {
   const router = useRouter();
 
@@ -19,6 +21,7 @@ const SignupPage: React.FC = () => {
     e.preventDefault();
     setError(null);
 
+    // ✅ Basic validation
     if (!name || !email || !password || !confirm) {
       setError("All fields are required");
       return;
@@ -34,11 +37,28 @@ const SignupPage: React.FC = () => {
       return;
     }
 
-    // Development mode - simple signup
-    console.log("Development signup success for:", email);
-    
-    // Redirect to login page
-    router.push("/login");
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, role }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Signup failed");
+        return;
+      }
+
+      console.log("✅ Signup successful:", data);
+
+      // Redirect to login page
+      router.push("/login");
+    } catch (err: any) {
+      console.error("Signup error:", err.message);
+      setError("Network error. Please try again later.");
+    }
   };
 
   return (
@@ -86,7 +106,6 @@ const SignupPage: React.FC = () => {
           >
             <option value="creator">Creator</option>
             <option value="brand">Brand</option>
-           
           </select>
           <Button type="submit" size="md" className="w-full mt-2">
             Sign Up
