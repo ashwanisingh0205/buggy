@@ -67,10 +67,17 @@ class TwitterService {
 
   // Generate Twitter OAuth URL
   async generateAuthURL(redirectUri: string): Promise<TwitterAuthResponse> {
-    return this.request<TwitterAuthResponse>('/api/twitter/auth-url', {
-      method: 'POST',
-      body: JSON.stringify({ redirectUri }),
-    });
+    // Try public GET first
+    try {
+      const url = `/api/twitter/auth-url?redirectUri=${encodeURIComponent(redirectUri)}`;
+      return await this.request<TwitterAuthResponse>(url, { method: 'GET' });
+    } catch (e) {
+      // Fallback to POST if GET fails
+      return this.request<TwitterAuthResponse>('/api/twitter/auth-url', {
+        method: 'POST',
+        body: JSON.stringify({ redirectUri }),
+      });
+    }
   }
 
   // Handle Twitter OAuth callback (this would be called by the backend)

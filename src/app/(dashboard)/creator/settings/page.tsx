@@ -41,6 +41,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ enabled, onToggle }) => (
 
 function SettingsPageContent() {
   const searchParams = useSearchParams();
+  const [tokenPresent, setTokenPresent] = useState<boolean>(true);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [emailUpdates, setEmailUpdates] = useState<boolean>(true);
   const [appNotifications, setAppNotifications] = useState<boolean>(true);
@@ -134,6 +135,17 @@ function SettingsPageContent() {
     }
   }, [searchParams]);
 
+  // Check for auth token on mount
+  useEffect(() => {
+    try {
+      const t = localStorage.getItem('token');
+      setTokenPresent(!!t);
+      console.log('🔎 Token present:', !!t, t ? (t.substring(0, 20) + '...') : 'none');
+    } catch (e) {
+      setTokenPresent(false);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Mobile Sidebar Overlay */}
@@ -180,6 +192,26 @@ function SettingsPageContent() {
                   className="ml-4 text-gray-400 hover:text-gray-600"
                 >
                   ×
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Auth Token Banner */}
+          {!tokenPresent && (
+            <div className="mb-4 p-4 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-900">
+              <div className="flex items-center justify-between">
+                <span className="font-medium">You are not logged in. Please log in to connect accounts.</span>
+                <button
+                  onClick={() => {
+                    try {
+                      const t = localStorage.getItem('token');
+                      setTokenPresent(!!t);
+                    } catch {}
+                  }}
+                  className="ml-4 text-yellow-700 hover:text-yellow-900 text-sm"
+                >
+                  Recheck
                 </button>
               </div>
             </div>

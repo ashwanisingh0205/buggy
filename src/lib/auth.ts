@@ -21,8 +21,13 @@ export const authUtils = {
     
     // Check cache first
     if (authCache && Date.now() - authCache.timestamp < CACHE_DURATION) {
-      console.log('🔍 Auth cache hit:', { hasToken: !!authCache.token, timestamp: authCache.timestamp });
-      return authCache.token;
+      // Only treat as a valid cache hit if we actually have a token
+      if (authCache.token) {
+        console.log('🔍 Auth cache hit:', { hasToken: !!authCache.token, timestamp: authCache.timestamp });
+        return authCache.token;
+      }
+      // Otherwise fall through to read from localStorage
+      console.log('🔍 Auth cache hit but empty token, refreshing from localStorage');
     }
     
     const token = localStorage.getItem('token');

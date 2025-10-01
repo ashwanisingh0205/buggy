@@ -62,63 +62,7 @@ export const useTwitter = () => {
       setLoading(true);
       setError(null);
 
-      // Ensure user is authenticated before requesting auth URL
-      const existingToken = authUtils.getToken();
-      const directToken = localStorage.getItem('token');
-      
-      console.log('🔍 Twitter connect - Token check:', {
-        hasToken: !!existingToken,
-        tokenLength: existingToken?.length || 0,
-        localStorageToken: directToken ? 'exists' : 'missing',
-        directTokenLength: directToken?.length || 0,
-        isAuthenticated: authUtils.isAuthenticated(),
-        tokenPreview: existingToken ? existingToken.substring(0, 20) + '...' : 'none',
-        directTokenPreview: directToken ? directToken.substring(0, 20) + '...' : 'none',
-        cacheInfo: 'Auth cache details available via debugAuth()'
-      });
-      
-      // Use direct token if authUtils.getToken() returns null but localStorage has a token
-      let tokenToUse = existingToken || directToken;
-      
-      if (!tokenToUse) {
-        // Try to force refresh the token
-        console.log('🔄 Attempting to force refresh token...');
-        const refreshedToken = authUtils.forceRefreshToken();
-        
-        if (!refreshedToken) {
-          console.error('❌ No token found in localStorage. User needs to log in again.');
-          throw new Error('Please log in to connect Twitter');
-        }
-        
-        console.log('✅ Token refreshed successfully');
-        // Continue with the refreshed token
-        tokenToUse = authUtils.getToken() || localStorage.getItem('token');
-        if (!tokenToUse) {
-          throw new Error('Please log in to connect Twitter');
-        }
-      }
-
-      // Test authentication first
-      try {
-        console.log('🧪 Testing authentication before Twitter connect...');
-        const testResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/test`, {
-          headers: {
-            'Authorization': `Bearer ${tokenToUse}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (!testResponse.ok) {
-          console.error('❌ Authentication test failed:', testResponse.status, testResponse.statusText);
-          throw new Error('Authentication test failed');
-        }
-        
-        const testData = await testResponse.json();
-        console.log('✅ Authentication test passed:', testData);
-      } catch (testError) {
-        console.error('❌ Authentication test error:', testError);
-        throw new Error('Please log in to connect Twitter');
-      }
+      // Migrate pre-checks to backend: directly request auth URL
 
       const callbackUrl = redirectUri || config.twitter.callbackUrl;
       const response = await twitterService.generateAuthURL(callbackUrl);
