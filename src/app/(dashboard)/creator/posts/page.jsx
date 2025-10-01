@@ -25,6 +25,9 @@ export default function PostsPage() {
   const [videoTitle, setVideoTitle] = useState('');
   const [videoDescription, setVideoDescription] = useState('');
   const [videoTags, setVideoTags] = useState('');
+  // Add these state variables at the top of your component
+const [uploadProgress, setUploadProgress] = useState(0);
+const [isUploading, setIsUploading] = useState(false); // ← ADD THIS LINE
   useEffect(() => {
     setTime(new Date().toLocaleString());
   }, []);
@@ -184,6 +187,27 @@ export default function PostsPage() {
       setPublishError(e.message || 'Failed to publish');
     } finally {
       setPublishing(false);
+    }
+    if (selectedPlatforms.youtube) {
+      setIsUploading(true);
+      setUploadProgress(0);
+      
+      try {
+        const res = await youtubeService.uploadVideo(
+          videoFile,
+          videoTitle || postContent.slice(0, 80) || 'Untitled',
+          videoDescription || postContent,
+          videoTags.split(',').map(t => t.trim()).filter(Boolean),
+          (progress) => setUploadProgress(progress)
+        );
+        
+        if (!res.success) {
+          throw new Error(res.error || 'Failed to upload to YouTube');
+        }
+      } finally {
+        setIsUploading(false);
+        setUploadProgress(0);
+      }
     }
   };
 

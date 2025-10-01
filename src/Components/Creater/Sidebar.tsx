@@ -7,6 +7,8 @@ import {
   Users,
   Settings,
   User,
+  Store,
+  Briefcase,
 } from 'lucide-react';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
@@ -17,6 +19,8 @@ const sidebarItems = [
   { name: 'Overview', icon: Home, href: '/creator' },
   { name: 'Posts', icon: FileText, href: '/creator/posts' },
   { name: 'Analytics', icon: BarChart3, href: '/creator/analytics' },
+  { name: 'Marketplace', icon: Store, href: '/creator/marketplace' },
+  { name: 'Campaigns', icon: Briefcase, href: '/creator/campaigns' },
   { name: 'Competitor Analysis', icon: Users, href: '/creator/competitors' },
   { name: 'Settings', icon: Settings, href: '/creator/settings' },
 ];
@@ -98,7 +102,7 @@ const Sidebar = React.memo(() => {
       <SidebarItem
         key={item.name}
         item={item}
-        isActive={item.name === activeTab}
+        isActive={typeof window !== 'undefined' ? (window.location.pathname.startsWith(item.href)) : (item.name === activeTab)}
         onItemClick={handleItemClick}
       />
     )), [activeTab, handleItemClick]);

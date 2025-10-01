@@ -58,7 +58,12 @@ const LoginPage: React.FC = () => {
       });
       
 
-      router.push("/creator");
+      const role = data.data.user?.role;
+      if (role === 'brand') {
+        router.push('/brand');
+      } else {
+        router.push('/creator');
+      }
     } catch (err: unknown) {
       setError("Network error. Please try again later.");
       console.error("Login error:", err instanceof Error ? err.message : 'Unknown error');

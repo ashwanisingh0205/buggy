@@ -53,8 +53,15 @@ const SignupPage: React.FC = () => {
 
       console.log("✅ Signup successful:", data);
 
-      // Redirect to login page
-      router.push("/login");
+      // If backend returns tokens and user, auto-login; else fallback to login
+      if (data?.data?.tokens?.accessToken && data?.data?.user) {
+        localStorage.setItem('token', data.data.tokens.accessToken);
+        localStorage.setItem('user', JSON.stringify(data.data.user));
+        const role = data.data.user?.role;
+        router.push(role === 'brand' ? '/brand' : '/creator');
+      } else {
+        router.push('/login');
+      }
     } catch (err: unknown) {
       console.error("Signup error:", err instanceof Error ? err.message : 'Unknown error');
       setError("Network error. Please try again later.");

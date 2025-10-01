@@ -102,32 +102,54 @@ class YouTubeService {
   }
 
   // Upload video to YouTube
-  async uploadVideo(file: File, title: string, description: string, tags: string[] = []): Promise<YouTubeVideoUploadResponse> {
-    const formData = new FormData();
-    formData.append('video', file);
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('tags', tags.join(','));
+  // Upload video to YouTube with progress tracking
+async uploadVideo(
+  file: File, 
+  title: string, 
+  description: string, 
+  tags: string[] = [], 
+  onProgress?: (progress: number) => void
+): Promise<YouTubeVideoUploadResponse> {
+  const formData = new FormData();
+  formData.append('video', file);
+  formData.append('title', title);
+  formData.append('description', description);
+  formData.append('tags', tags.join(','));
 
-    const { authUtils } = await import('./auth');
-    const token = authUtils.getToken();
+  const { authUtils } = await import('./auth');
+  const token = authUtils.getToken();
 
-    const res = await fetch(`${this.baseURL}/api/youtube/upload-video`, {
+  // Increased timeout for large files
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 300000); // 5 minutes
+
+  let res: Response;
+  try {
+    res = await fetch(`${this.baseURL}/api/youtube/upload-video`, {
       method: 'POST',
       credentials: 'include',
       body: formData,
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {})
-      }
+      },
+      signal: controller.signal
     });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => null) as { error?: string; message?: string } | null;
-      throw new Error(err?.error || err?.message || 'Video upload failed');
+  } catch (err) {
+    if ((err as Error).name === 'AbortError') {
+      throw new Error('Upload timed out after 5 minutes. Please try a smaller file or check your connection.');
     }
-
-    return res.json();
+    throw new Error(`Upload failed: ${(err as Error).message}`);
+  } finally {
+    clearTimeout(timeout);
   }
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => null) as { error?: string; message?: string } | null;
+    throw new Error(err?.error || err?.message || 'Video upload failed');
+  }
+
+  return res.json();
+}
 
   // Get video analytics
   async getVideoAnalytics(videoId: string): Promise<YouTubeAnalyticsResponse> {
