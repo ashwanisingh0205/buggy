@@ -41,9 +41,9 @@ export const TwitterPost: React.FC<TwitterPostProps> = ({ className = '' }) => {
     const id = await uploadMedia(file);
     setMediaId(id);
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Media upload error:', error);
-    alert('Failed to upload media: ' + error.message);
+    alert('Failed to upload media: ' + (error instanceof Error ? error.message : 'Unknown error'));
     setSelectedFile(null);
     setMediaId(null);
   } finally {
@@ -70,9 +70,9 @@ export const TwitterPost: React.FC<TwitterPostProps> = ({ className = '' }) => {
         setSelectedFile(null);
         setMediaId(null);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Tweet posting error:', error);
-      alert('Failed to post tweet: ' + error.message);
+      alert('Failed to post tweet: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setIsPosting(false);
     }

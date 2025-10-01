@@ -5,12 +5,18 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Button from "@/Components/ui/Button";
 
-export default function ResetPasswordTokenPage({ params }: { params: { token: string } }) {
+export default function ResetPasswordTokenPage({ params }: { params: Promise<{ token: string }> }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [token, setToken] = useState<string>("");
   const router = useRouter();
+
+  // Extract token from params
+  React.useEffect(() => {
+    params.then(({ token }) => setToken(token));
+  }, [params]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +34,7 @@ export default function ResetPasswordTokenPage({ params }: { params: { token: st
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/reset-password/${params.token}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/reset-password/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ newPassword: password }),
@@ -42,8 +48,8 @@ export default function ResetPasswordTokenPage({ params }: { params: { token: st
 
       setMessage("Password reset successful! Redirecting to login...");
       setTimeout(() => router.push("/login"), 1500);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
     }
   };
 

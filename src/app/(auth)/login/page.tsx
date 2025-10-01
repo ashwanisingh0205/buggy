@@ -46,11 +46,21 @@ const LoginPage: React.FC = () => {
       localStorage.setItem("token", data.data.tokens.accessToken);
       localStorage.setItem("user", JSON.stringify(data.data.user));
       
+      // Clear auth cache to ensure fresh token is used
+      const { authUtils } = await import('@/lib/auth');
+      authUtils.clearCache();
+      
+      console.log('🔑 Login successful - Token stored:', {
+        hasToken: !!data.data.tokens.accessToken,
+        tokenLength: data.data.tokens.accessToken?.length || 0,
+        user: data.data.user
+      });
+      
 
       router.push("/creator");
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError("Network error. Please try again later.");
-      console.error("Login error:", err.message);
+      console.error("Login error:", err instanceof Error ? err.message : 'Unknown error');
     }
   };
 

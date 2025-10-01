@@ -1,9 +1,24 @@
 "use client";
-import React from 'react';
+import React, { forwardRef, useImperativeHandle } from 'react';
 import { useLinkedIn } from '@/hooks/useLinkedIn';
 
-export const LinkedInIntegration: React.FC<{ className?: string }> = ({ className = '' }) => {
+interface LinkedInIntegrationProps {
+  className?: string;
+}
+
+export interface LinkedInIntegrationRef {
+  checkConnection: () => void;
+}
+
+export const LinkedInIntegration = forwardRef<LinkedInIntegrationRef, LinkedInIntegrationProps>(({ className = '' }, ref) => {
   const { connect, loading, error } = useLinkedIn();
+
+  // Expose checkConnection method to parent component (placeholder for now)
+  useImperativeHandle(ref, () => ({
+    checkConnection: () => {
+      console.log('LinkedIn checkConnection called (not implemented yet)');
+    }
+  }));
 
   return (
     <div className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-200 rounded-lg gap-3 ${className}`}>
@@ -29,6 +44,8 @@ export const LinkedInIntegration: React.FC<{ className?: string }> = ({ classNam
       </div>
     </div>
   );
-};
+});
+
+LinkedInIntegration.displayName = 'LinkedInIntegration';
 
 

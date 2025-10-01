@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   BarChart, 
   Bar, 
@@ -12,15 +12,9 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import {
-  Home,
-  FileText,
-  BarChart3,
-  Users,
-  Settings,
   Plus,
   Eye,
-  User,
-  Menu
+  User
 } from 'lucide-react';
 import Sidebar from '@/Components/Creater/Sidebar';
 

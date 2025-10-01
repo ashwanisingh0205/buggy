@@ -1,6 +1,6 @@
 // src/lib/twitter.ts
 import { config } from './config';
-import { authUtils } from './auth';
+import { apiRequest } from './apiClient';
 
 export interface TwitterUser {
   id: string;
@@ -61,28 +61,7 @@ class TwitterService {
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const token = authUtils.getToken();
-    console.log('Token:', token, 'Requesting:', `${this.baseURL}${endpoint}`);
-
-    if (!token) {
-      throw new Error('Authentication required. Please log in first.');
-    }
-  
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-        ...options.headers,
-      },
-    });
-  
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.error || error.message || 'Request failed');
-    }
-  
-    return response.json();
+    return apiRequest<T>(endpoint, options);
   }
   
 
@@ -90,11 +69,8 @@ class TwitterService {
   async generateAuthURL(redirectUri: string): Promise<TwitterAuthResponse> {
     return this.request<TwitterAuthResponse>('/api/twitter/auth-url', {
       method: 'POST',
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${authUtils.getToken()}`, // ✅ add app JWT
-      },
-      body: JSON.stringify({ redirectUri }),    });
+      body: JSON.stringify({ redirectUri }),
+    });
   }
 
   // Handle Twitter OAuth callback (this would be called by the backend)
@@ -123,24 +99,17 @@ class TwitterService {
   async uploadMedia(file: File): Promise<MediaUploadResponse> {
     const formData = new FormData();
     formData.append('media', file);
-  
-    const token = authUtils.getToken();
-    if (!token) throw new Error('Authentication required');
-  
-    const response = await fetch(`${this.baseURL}/api/twitter/upload-media`, {
+    const res = await fetch(`${this.baseURL}/api/twitter/upload-media`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
+      credentials: 'include',
       body: formData,
+      headers: {}
     });
-  
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.error || error.message || 'Upload failed');
+    if (!res.ok) {
+      const err = await res.json().catch(() => null) as { error?: string; message?: string } | null;
+      throw new Error(err?.error || err?.message || 'Upload failed');
     }
-  
-    return response.json();
+    return res.json();
   }
   
 

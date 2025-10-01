@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import Button from '@/Components/ui/Button';
@@ -7,7 +7,7 @@ import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaYoutube, FaPintere
 
 const Hero: React.FC = () => {
   // Typewriter state (must be at top-level for hooks rules)
-  const words = ["workspace", "center", "OS"];
+  const words = useMemo(() => ["workspace", "center", "OS"], []);
   const [index, setIndex] = useState(0);
   const [subIndex, setSubIndex] = useState(0);
   const [deleting, setDeleting] = useState(false);
@@ -27,7 +27,7 @@ const Hero: React.FC = () => {
       }
     }, deleting ? 75 : 105);
     return () => clearTimeout(timeout);
-  }, [subIndex, deleting, index]);
+  }, [subIndex, deleting, index, words]);
 
   return (
     <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24 md:pt-28 pb-20 sm:pb-28 md:pb-36">

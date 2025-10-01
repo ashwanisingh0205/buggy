@@ -1,18 +1,17 @@
-'use client';
-import React, { useState, forwardRef, useImperativeHandle } from 'react';
-import { useTwitter } from '@/hooks/useTwitter';
-import { Loader2, CheckCircle, ExternalLink } from 'lucide-react';
+import React, { useState, forwardRef, useImperativeHandle } from "react";
+import { ExternalLink, Loader2, Play } from "lucide-react";
+import { useYouTube } from "@/hooks/useYouTube";
 
-interface TwitterIntegrationProps {
+interface YouTubeIntegrationProps {
   className?: string;
 }
 
-export interface TwitterIntegrationRef {
+export interface YouTubeIntegrationRef {
   checkConnection: () => void;
 }
 
-export const TwitterIntegration = forwardRef<TwitterIntegrationRef, TwitterIntegrationProps>(({ className = '' }, ref) => {
-  const { isConnected, profile, loading, error, connect, disconnect, checkConnection } = useTwitter();
+export const YouTubeIntegration = forwardRef<YouTubeIntegrationRef, YouTubeIntegrationProps>(({ className = '' }, ref) => {
+  const { isConnected, channel, loading, error, connect, disconnect, checkConnection } = useYouTube();
   const [isConnecting, setIsConnecting] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
 
@@ -30,7 +29,7 @@ export const TwitterIntegration = forwardRef<TwitterIntegrationRef, TwitterInteg
         checkConnection();
       }, 1000);
     } catch (error) {
-      console.error('Twitter connection error:', error);
+      console.error('YouTube connection error:', error);
     } finally {
       setIsConnecting(false);
     }
@@ -41,7 +40,7 @@ export const TwitterIntegration = forwardRef<TwitterIntegrationRef, TwitterInteg
       setIsDisconnecting(true);
       await disconnect();
     } catch (error) {
-      console.error('Twitter disconnection error:', error);
+      console.error('YouTube disconnection error:', error);
     } finally {
       setIsDisconnecting(false);
     }
@@ -53,17 +52,15 @@ export const TwitterIntegration = forwardRef<TwitterIntegrationRef, TwitterInteg
   return (
     <div className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-200 rounded-lg gap-3 ${className}`}>
       <div className="flex items-center space-x-3">
-        <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-          <span className="text-white font-medium text-sm">X</span>
+        <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
+          <Play className="w-4 h-4 text-white" />
         </div>
         <div>
-          <p className="font-medium text-gray-900">X (Twitter)</p>
-          {loading ? (
-            <p className="text-sm text-gray-500">Checking connection...</p>
-          ) : isConnected && profile ? (
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="w-4 h-4 text-green-500" />
-              <p className="text-sm text-green-600">@{profile.username}</p>
+          <p className="font-medium text-gray-900">YouTube</p>
+          {isConnected && channel ? (
+            <div className="text-sm text-gray-500">
+              <p>@{channel.customUrl || channel.title}</p>
+              <p>{channel.subscriberCount} subscribers</p>
             </div>
           ) : (
             <p className="text-sm text-gray-500">Not connected</p>
@@ -78,7 +75,7 @@ export const TwitterIntegration = forwardRef<TwitterIntegrationRef, TwitterInteg
         {isConnected ? (
           <>
             <button
-              onClick={checkConnection}
+              onClick={() => checkConnection()}
               disabled={loading}
               className="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
             >
@@ -113,7 +110,7 @@ export const TwitterIntegration = forwardRef<TwitterIntegrationRef, TwitterInteg
           <button
             onClick={handleConnect}
             disabled={isConnecting || loading}
-            className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
+            className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
           >
             {isConnecting ? (
               <>
@@ -133,4 +130,4 @@ export const TwitterIntegration = forwardRef<TwitterIntegrationRef, TwitterInteg
   );
 });
 
-TwitterIntegration.displayName = 'TwitterIntegration';
+YouTubeIntegration.displayName = 'YouTubeIntegration';

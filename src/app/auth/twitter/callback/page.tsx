@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { config } from "@/lib/config";
 
-export default function TwitterCallbackPage() {
+function TwitterCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -43,4 +43,12 @@ export default function TwitterCallbackPage() {
   }, [searchParams, router]);
 
   return <p>Connecting your Twitter account...</p>;
+}
+
+export default function TwitterCallbackPage() {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <TwitterCallbackContent />
+    </Suspense>
+  );
 }

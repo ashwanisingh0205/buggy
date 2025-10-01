@@ -1,12 +1,11 @@
-// src/hooks/useTwitter.ts
+// src/hooks/useYouTube.ts
 import { useState, useEffect } from "react";
-import { twitterService, TwitterUser } from "@/lib/twitter";
-import { config } from "@/lib/config";
+import { youtubeService, YouTubeChannel } from "@/lib/youtube";
 import { authUtils } from "@/lib/auth";
 
-export const useTwitter = () => {
+export const useYouTube = () => {
   const [isConnected, setIsConnected] = useState<boolean>(false);
-  const [profile, setProfile] = useState<TwitterUser | null>(null);
+  const [channel, setChannel] = useState<YouTubeChannel | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,42 +15,67 @@ export const useTwitter = () => {
     if (!authUtils.isAuthenticated()) {
       setLoading(false);
       setIsConnected(false);
-      setProfile(null);
+      setChannel(null);
     } else {
       // Set initial state without making API calls
       setLoading(false);
       setIsConnected(false);
-      setProfile(null);
+      setChannel(null);
     }
   }, []);
 
-  const checkConnection = async () => {
+  const checkConnection = async (retryCount = 0) => {
     try {
       setLoading(true);
       setError(null);
+      
+      console.log(`🔍 YouTube checkConnection called (attempt ${retryCount + 1})`);
 
-      const isTwitterConnected = await twitterService.isConnected();
-
-      if (!isTwitterConnected) {
+      // First check if user is authenticated
+      if (!authUtils.isAuthenticated()) {
+        console.log('❌ User not authenticated, skipping YouTube connection check');
         setIsConnected(false);
-        setProfile(null);
+        setChannel(null);
         return;
       }
 
-      const profileResponse = await twitterService.getProfile();
+      const isYouTubeConnected = await youtubeService.isConnected();
 
-      if (profileResponse.success && profileResponse.profile?.username) {
-        setIsConnected(true);
-        setProfile(profileResponse.profile);
-      } else {
+      if (!isYouTubeConnected) {
+        console.log('❌ YouTube not connected, setting state to disconnected');
         setIsConnected(false);
-        setProfile(null);
+        setChannel(null);
+        return;
+      }
+
+      console.log('✅ YouTube is connected, fetching channel info...');
+      const channelResponse = await youtubeService.getChannelInfo();
+
+      if (channelResponse.success && channelResponse.channel?.id) {
+        console.log('✅ YouTube channel info retrieved successfully:', channelResponse.channel.title);
+        setIsConnected(true);
+        setChannel(channelResponse.channel);
+      } else {
+        console.log('❌ Failed to get channel info or invalid response');
+        setIsConnected(false);
+        setChannel(null);
       }
     } catch (err: unknown) {
-      console.error("Error checking Twitter connection:", err);
-      setError(err instanceof Error ? err.message : "Failed to check Twitter connection");
+      const errorMessage = (err as Error).message || 'Unknown error';
+      console.error("❌ Error checking YouTube connection:", errorMessage);
+      
+      // If it's a "not connected" error and we haven't retried too many times, retry after a delay
+      if (errorMessage.includes('YouTube account not connected') && retryCount < 3) {
+        console.log(`🔄 Retrying YouTube connection check in 2 seconds... (attempt ${retryCount + 1})`);
+        setTimeout(() => {
+          checkConnection(retryCount + 1);
+        }, 2000);
+        return;
+      }
+      
+      setError(errorMessage);
       setIsConnected(false);
-      setProfile(null);
+      setChannel(null);
     } finally {
       setLoading(false);
     }
@@ -66,7 +90,7 @@ export const useTwitter = () => {
       const existingToken = authUtils.getToken();
       const directToken = localStorage.getItem('token');
       
-      console.log('🔍 Twitter connect - Token check:', {
+      console.log('🔍 YouTube connect - Token check:', {
         hasToken: !!existingToken,
         tokenLength: existingToken?.length || 0,
         localStorageToken: directToken ? 'exists' : 'missing',
@@ -87,20 +111,20 @@ export const useTwitter = () => {
         
         if (!refreshedToken) {
           console.error('❌ No token found in localStorage. User needs to log in again.');
-          throw new Error('Please log in to connect Twitter');
+          throw new Error('Please log in to connect YouTube');
         }
         
         console.log('✅ Token refreshed successfully');
         // Continue with the refreshed token
         tokenToUse = authUtils.getToken() || localStorage.getItem('token');
         if (!tokenToUse) {
-          throw new Error('Please log in to connect Twitter');
+          throw new Error('Please log in to connect YouTube');
         }
       }
 
       // Test authentication first
       try {
-        console.log('🧪 Testing authentication before Twitter connect...');
+        console.log('🧪 Testing authentication before YouTube connect...');
         const testResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/test`, {
           headers: {
             'Authorization': `Bearer ${tokenToUse}`,
@@ -117,25 +141,21 @@ export const useTwitter = () => {
         console.log('✅ Authentication test passed:', testData);
       } catch (testError) {
         console.error('❌ Authentication test error:', testError);
-        throw new Error('Please log in to connect Twitter');
+        throw new Error('Please log in to connect YouTube');
       }
 
-      const callbackUrl = redirectUri || config.twitter.callbackUrl;
-      const response = await twitterService.generateAuthURL(callbackUrl);
+      const callbackUrl = redirectUri || `${window.location.origin}/auth/youtube/callback`;
+      const response = await youtubeService.generateAuthURL(callbackUrl);
       
-      // When user clicks "Connect Twitter"
-
-
-
       if (response.success && response.authURL) {
-        localStorage.setItem("twitter_state", response.state || "");
+        localStorage.setItem("youtube_state", response.state || "");
         window.location.href = response.authURL;
       } else {
         throw new Error(response.error || "Failed to generate auth URL");
       }
     } catch (err: unknown) {
-      console.error("Error connecting to Twitter:", err);
-      setError(err instanceof Error ? err.message : "Failed to connect to Twitter");
+      console.error("Error connecting to YouTube:", err);
+      setError((err as Error).message || "Failed to connect to YouTube");
       throw err;
     } finally {
       setLoading(false);
@@ -147,72 +167,69 @@ export const useTwitter = () => {
       setLoading(true);
       setError(null);
 
-      const response = await twitterService.disconnect();
+      const response = await youtubeService.disconnect();
 
       if (response.success) {
         setIsConnected(false);
-        setProfile(null);
+        setChannel(null);
         return true;
       } else {
         throw new Error(response.error || "Failed to disconnect");
       }
     } catch (err: unknown) {
-      console.error("Error disconnecting Twitter:", err);
-      setError(err instanceof Error ? err.message : "Failed to disconnect Twitter");
+      console.error("Error disconnecting YouTube:", err);
+      setError((err as Error).message || "Failed to disconnect YouTube");
       throw err;
     } finally {
       setLoading(false);
     } 
   };
 
-  // ✅ Add postTweet
-  const postTweet = async (text: string, mediaIds?: string[]): Promise<unknown> => {
+  // Upload video to YouTube
+  const uploadVideo = async (file: File, title: string, description: string, tags: string[] = []): Promise<unknown> => {
     try {
       setError(null);
-      const response = await twitterService.postTweet(text, mediaIds);
+      const response = await youtubeService.uploadVideo(file, title, description, tags);
   
       if (!response.success) {
-        throw new Error(response.error || "Failed to post tweet");
+        throw new Error(response.error || "Failed to upload video");
       }
   
-      // Return the actual tweet object
-      return response.tweet;
+      return response.video;
     } catch (err: unknown) {
-      console.error("Error posting tweet:", err);
-      setError(err instanceof Error ? err.message : "Failed to post tweet");
+      console.error("Error uploading video:", err);
+      setError((err as Error).message || "Failed to upload video");
       throw err;
     }
   };
-  
-  
-  
 
-  // ✅ Add uploadMedia
-  const uploadMedia = async (file: File): Promise<string> => {
+  // Get video analytics
+  const getVideoAnalytics = async (videoId: string): Promise<unknown> => {
     try {
       setError(null);
-      const response = await twitterService.uploadMedia(file);
-
-      if (!response.success || !response.mediaId) {
-        throw new Error(response.error || "Failed to upload media");
+      const response = await youtubeService.getVideoAnalytics(videoId);
+  
+      if (!response.success) {
+        throw new Error(response.error || "Failed to get video analytics");
       }
-      return response.mediaId;
+  
+      return response.analytics;
     } catch (err: unknown) {
-      console.error("Error uploading media:", err);
-      setError(err instanceof Error ? err.message : "Failed to upload media");
+      console.error("Error getting video analytics:", err);
+      setError((err as Error).message || "Failed to get video analytics");
       throw err;
     }
   };
 
   return {
     isConnected,
-    profile,
+    channel,
     loading,
     error,
     connect,
     disconnect,
     checkConnection,
-    postTweet,   // ✅ now exposed
-    uploadMedia, // ✅ now exposed
+    uploadVideo,
+    getVideoAnalytics,
   };
 };

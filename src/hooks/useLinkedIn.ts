@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { linkedInService } from '@/lib/linkedin';
-import { config } from '@/lib/config';
+// import { config } from '@/lib/config'; // Unused import
 
 export const useLinkedIn = () => {
   const [loading, setLoading] = useState(false);
@@ -18,8 +18,8 @@ export const useLinkedIn = () => {
       } else {
         throw new Error(res.error || 'Failed to generate LinkedIn auth URL');
       }
-    } catch (e: any) {
-      setError(e.message || 'Failed to connect to LinkedIn');
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Failed to connect to LinkedIn');
     } finally {
       setLoading(false);
     }

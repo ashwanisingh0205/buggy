@@ -55,8 +55,8 @@ const SignupPage: React.FC = () => {
 
       // Redirect to login page
       router.push("/login");
-    } catch (err: any) {
-      console.error("Signup error:", err.message);
+    } catch (err: unknown) {
+      console.error("Signup error:", err instanceof Error ? err.message : 'Unknown error');
       setError("Network error. Please try again later.");
     }
   };

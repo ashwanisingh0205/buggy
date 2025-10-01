@@ -5,4 +5,7 @@ export const config = {
   twitter: {
     callbackUrl: 'http://localhost:3000/auth/twitter/callback'
   },
+  youtube: {
+    callbackUrl: 'http://localhost:3000/auth/youtube/callback'
+  },
 };

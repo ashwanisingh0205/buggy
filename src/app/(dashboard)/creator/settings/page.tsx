@@ -1,9 +1,15 @@
 'use client'
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { Eye, EyeOff, Menu } from "lucide-react";
-import Sidebar from "@/Components/Creater/Sidebar";
-import { TwitterIntegration } from "@/Components/Twitter/TwitterIntegration";
-import { LinkedInIntegration } from "@/Components/LinkedIn/LinkedInIntegration";
+import { useSearchParams } from "next/navigation";
+import { SidebarWithSuspense } from "@/Components/LazyComponents";
+import { TwitterIntegrationWithSuspense } from "@/Components/LazyComponents";
+import { LinkedInIntegrationWithSuspense } from "@/Components/LazyComponents";
+import { YouTubeIntegrationWithSuspense } from "@/Components/LazyComponents";
+import type { TwitterIntegrationRef } from "@/Components/Twitter/TwitterIntegration";
+import type { LinkedInIntegrationRef } from "@/Components/LinkedIn/LinkedInIntegration";
+import type { YouTubeIntegrationRef } from "@/Components/YouTube/YouTubeIntegration";
+import { useRef } from "react";
 
 interface FormData {
   email: string;
@@ -33,13 +39,20 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ enabled, onToggle }) => (
   </button>
 );
 
-export default function SettingsPage() {
+function SettingsPageContent() {
+  const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [emailUpdates, setEmailUpdates] = useState<boolean>(true);
   const [appNotifications, setAppNotifications] = useState<boolean>(true);
   const [pushNotifications, setPushNotifications] = useState<boolean>(false);
   const [emailNotifications, setEmailNotifications] = useState<boolean>(true);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [notification, setNotification] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
+  
+  // Refs to trigger connection checks
+  const twitterRef = useRef<TwitterIntegrationRef>(null);
+  const linkedinRef = useRef<LinkedInIntegrationRef>(null);
+  const youtubeRef = useRef<YouTubeIntegrationRef>(null);
 
   const [formData, setFormData] = useState<FormData>({
     email: "john@example.com",
@@ -52,6 +65,75 @@ export default function SettingsPage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  // Handle URL parameters for Twitter/LinkedIn/YouTube connection status
+  useEffect(() => {
+    const twitterStatus = searchParams.get('twitter');
+    const linkedinStatus = searchParams.get('linkedin');
+    const youtubeStatus = searchParams.get('youtube');
+    const message = searchParams.get('message');
+    
+    console.log('🔍 Settings page useEffect triggered with params:', {
+      twitterStatus,
+      linkedinStatus,
+      youtubeStatus,
+      message,
+      currentUrl: window.location.href
+    });
+
+    if (twitterStatus === 'success') {
+      setNotification({ type: 'success', message: 'Twitter account connected successfully!' });
+      // Trigger connection check for Twitter
+      setTimeout(() => {
+        twitterRef.current?.checkConnection();
+      }, 1000);
+      // Clear URL parameters after showing notification
+      setTimeout(() => {
+        window.history.replaceState({}, '', window.location.pathname);
+        setNotification({ type: null, message: '' });
+      }, 5000);
+    } else if (twitterStatus === 'error') {
+      setNotification({ type: 'error', message: message ? decodeURIComponent(message) : 'Failed to connect Twitter account' });
+      setTimeout(() => {
+        window.history.replaceState({}, '', window.location.pathname);
+        setNotification({ type: null, message: '' });
+      }, 5000);
+    } else if (linkedinStatus === 'success') {
+      setNotification({ type: 'success', message: 'LinkedIn account connected successfully!' });
+      // Trigger connection check for LinkedIn
+      setTimeout(() => {
+        linkedinRef.current?.checkConnection();
+      }, 1000);
+      setTimeout(() => {
+        window.history.replaceState({}, '', window.location.pathname);
+        setNotification({ type: null, message: '' });
+      }, 5000);
+    } else if (linkedinStatus === 'error') {
+      setNotification({ type: 'error', message: message ? decodeURIComponent(message) : 'Failed to connect LinkedIn account' });
+      setTimeout(() => {
+        window.history.replaceState({}, '', window.location.pathname);
+        setNotification({ type: null, message: '' });
+      }, 5000);
+    } else if (youtubeStatus === 'success') {
+      setNotification({ type: 'success', message: 'YouTube account connected successfully!' });
+      // Trigger connection check for YouTube with longer delay to allow backend to save tokens
+      console.log('🎉 YouTube success detected, will check connection in 3 seconds');
+      setTimeout(() => {
+        console.log('🔄 Triggering YouTube connection check after success');
+        youtubeRef.current?.checkConnection();
+      }, 3000);
+      setTimeout(() => {
+        window.history.replaceState({}, '', window.location.pathname);
+        setNotification({ type: null, message: '' });
+      }, 5000);
+    } else if (youtubeStatus === 'error') {
+      setNotification({ type: 'error', message: message ? decodeURIComponent(message) : 'Failed to connect YouTube account' });
+      setTimeout(() => {
+        window.history.replaceState({}, '', window.location.pathname);
+        setNotification({ type: null, message: '' });
+      }, 5000);
+    }
+  }, [searchParams]);
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Mobile Sidebar Overlay */}
@@ -59,14 +141,14 @@ export default function SettingsPage() {
         <div className="fixed inset-0 z-40 md:hidden">
           <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setSidebarOpen(false)}></div>
           <div className="relative z-50">
-            <Sidebar/>
+            <SidebarWithSuspense/>
           </div>
         </div>
       )}
 
       {/* Desktop Sidebar */}
       <div className="hidden md:block">
-        <Sidebar/>
+        <SidebarWithSuspense/>
       </div>
 
       {/* Main Content */}
@@ -84,6 +166,25 @@ export default function SettingsPage() {
         </div>
 
         <div className="p-4 md:p-6">
+          {/* Notification Banner */}
+          {notification.type && (
+            <div className={`mb-4 p-4 rounded-lg ${
+              notification.type === 'success' 
+                ? 'bg-green-50 border border-green-200 text-green-800' 
+                : 'bg-red-50 border border-red-200 text-red-800'
+            }`}>
+              <div className="flex items-center justify-between">
+                <span className="font-medium">{notification.message}</span>
+                <button
+                  onClick={() => setNotification({ type: null, message: '' })}
+                  className="ml-4 text-gray-400 hover:text-gray-600"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="bg-white rounded-lg shadow-sm">
           <div className="p-6 border-b border-gray-200">
             <h1 className="hidden md:block text-2xl font-semibold text-gray-900">Settings</h1>
@@ -250,16 +351,18 @@ export default function SettingsPage() {
                   </button>
                 </div>
 
-                <TwitterIntegration />
+                <TwitterIntegrationWithSuspense ref={twitterRef} />
 
-                <LinkedInIntegration />
+                <LinkedInIntegrationWithSuspense ref={linkedinRef} />
+
+                <YouTubeIntegrationWithSuspense ref={youtubeRef} />
               </div>
             </section>
 
             {/* Notification Preferences */}
             <section>
               <h2 className="text-lg font-medium text-gray-900 mb-2">Notification Preferences</h2>
-              <p className="text-sm text-gray-600 mb-6">Choose how you'd like to receive updates about your Biocube Vision</p>
+              <p className="text-sm text-gray-600 mb-6">Choose how you&apos;d like to receive updates about your Biocube Vision</p>
               
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
@@ -336,5 +439,13 @@ export default function SettingsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SettingsPageContent />
+    </Suspense>
   );
 }
