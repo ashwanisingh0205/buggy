@@ -7,10 +7,7 @@ const nextConfig: NextConfig = {
     // optimizePackageImports: ['lucide-react', 'framer-motion'], // Temporarily disabled for build debugging
   },
   
-  // Relax build blockers temporarily (set to true only if you understand the risks)
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  // Temporarily disable ESLint during builds to unblock deployment
   eslint: {
     ignoreDuringBuilds: true,
   },

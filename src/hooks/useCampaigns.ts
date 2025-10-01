@@ -32,8 +32,9 @@ export function useCampaigns(initialParams: ListParams = {}) {
       const res = await apiRequest<CampaignListResponse>(`/api/campaigns?${query}`);
       setData(res.data.campaigns);
       setTotal(res.data.pagination.total);
-    } catch (e: any) {
-      setError(e?.message || 'Failed to load campaigns');
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : 'Failed to load campaigns';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

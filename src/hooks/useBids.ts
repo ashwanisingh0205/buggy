@@ -30,8 +30,9 @@ export function useBids(initialParams: ListParams = {}) {
       const res = await apiRequest<BidListResponse>(`/api/bids?${query}`);
       setData(res.data.bids);
       setTotal(res.data.pagination.total);
-    } catch (e: any) {
-      setError(e?.message || 'Failed to load bids');
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : 'Failed to load bids';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

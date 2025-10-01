@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Button from "@/Components/ui/Button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { config } from "@/lib/config";
+// import { config } from "@/lib/config"; // Unused import
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL; // ✅ from env
 
@@ -90,8 +90,9 @@ const LoginPage: React.FC = () => {
       }
       localStorage.setItem('google_state', data.state || '');
       window.location.href = data.authURL;
-    } catch (e: any) {
-      setError(e.message || 'Failed to start Google auth');
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : 'Failed to start Google auth';
+      setError(errorMessage);
     }
   };
 

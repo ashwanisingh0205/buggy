@@ -108,7 +108,7 @@ async uploadVideo(
   title: string, 
   description: string, 
   tags: string[] = [], 
-  onProgress?: (progress: number) => void
+  _onProgress?: (progress: number) => void
 ): Promise<YouTubeVideoUploadResponse> {
   const formData = new FormData();
   formData.append('video', file);

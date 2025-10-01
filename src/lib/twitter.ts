@@ -71,7 +71,7 @@ class TwitterService {
     try {
       const url = `/api/twitter/auth-url?redirectUri=${encodeURIComponent(redirectUri)}`;
       return await this.request<TwitterAuthResponse>(url, { method: 'GET' });
-    } catch (e) {
+    } catch {
       // Fallback to POST if GET fails
       return this.request<TwitterAuthResponse>('/api/twitter/auth-url', {
         method: 'POST',

@@ -17,6 +17,6 @@ spec:
             - name: HOSTNAME
               value: 0.0.0.0
             - name: NEXT_PUBLIC_API_URL
-              value: "https://bloocube-backend-1027324977903.asia-southeast1.run.app"
+              value: "https://bloocube-backend-URL"
       containerConcurrency: 80
       timeoutSeconds: 300

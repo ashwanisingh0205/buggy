@@ -15,8 +15,9 @@ export function useApi() {
     try {
       const data = await apiJson<T>(path, init);
       return data;
-    } catch (e: any) {
-      setError(e?.message || 'Request failed');
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : 'Request failed';
+      setError(errorMessage);
       throw e;
     } finally {
       setLoading(false);
