@@ -62,7 +62,19 @@ export const useTwitter = () => {
       setLoading(true);
       setError(null);
 
-      // Migrate pre-checks to backend: directly request auth URL
+      // Ensure user is authenticated before requesting auth URL (prevents 401 from backend)
+      const existingToken = authUtils.getToken();
+      const directToken = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+
+      if (!existingToken && !directToken) {
+        // Try to force refresh the token cache from localStorage
+        authUtils.forceRefreshToken?.();
+      }
+
+      const tokenToUse = authUtils.getToken() || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+      if (!tokenToUse) {
+        throw new Error('Please log in to connect Twitter');
+      }
 
       const callbackUrl = redirectUri || config.twitter.callbackUrl;
       const response = await twitterService.generateAuthURL(callbackUrl);

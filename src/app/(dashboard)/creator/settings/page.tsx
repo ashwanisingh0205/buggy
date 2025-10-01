@@ -141,10 +141,37 @@ function SettingsPageContent() {
       const t = localStorage.getItem('token');
       setTokenPresent(!!t);
       console.log('🔎 Token present:', !!t, t ? (t.substring(0, 20) + '...') : 'none');
-    } catch (e) {
+    } catch {
       setTokenPresent(false);
     }
   }, []);
+
+  // Auto-check social connections on load after login (staggered to avoid rate limits)
+  useEffect(() => {
+    const twitterStatus = searchParams.get('twitter');
+    const linkedinStatus = searchParams.get('linkedin');
+    const youtubeStatus = searchParams.get('youtube');
+
+    // Only run if logged in and no immediate callback status is being handled
+    if (tokenPresent && !twitterStatus && !linkedinStatus && !youtubeStatus) {
+      // Stagger checks to reduce burst calls
+      const timers: number[] = [];
+      timers.push(window.setTimeout(() => {
+        youtubeRef.current?.checkConnection?.();
+      }, 400));
+      timers.push(window.setTimeout(() => {
+        twitterRef.current?.checkConnection?.();
+      }, 900));
+      // Optional: LinkedIn if needed
+      timers.push(window.setTimeout(() => {
+        linkedinRef.current?.checkConnection?.();
+      }, 1400));
+
+      return () => {
+        timers.forEach((id) => clearTimeout(id));
+      };
+    }
+  }, [tokenPresent, searchParams]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
