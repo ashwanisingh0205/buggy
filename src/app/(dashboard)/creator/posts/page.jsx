@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState , useEffect} from 'react';
-import { Calendar, Upload, MoreHorizontal, Facebook, Instagram, Twitter, Linkedin, BarChart3, Users, MessageCircle, Heart, Share, Eye } from 'lucide-react';
+import { Calendar, Upload, MoreHorizontal, Facebook, Instagram, Twitter, Linkedin, Youtube, BarChart3, Users, MessageCircle, Heart, Share, Eye } from 'lucide-react';
 import Sidebar from '@/Components/Creater/Sidebar';
 import { TwitterPost } from '@/Components/Twitter/TwitterPost';
+import { twitterService } from '@/lib/twitter';
+import { youtubeService } from '@/lib/youtube';
 
 export default function PostsPage() {
   const [activeTab, setActiveTab] = useState('create');
@@ -12,9 +14,17 @@ export default function PostsPage() {
     instagram: false,
     facebook: false,
     twitter: false,
-    linkedin: false
+    linkedin: false,
+    youtube: false
   });
   const [time, setTime] = useState(null);
+  const [publishing, setPublishing] = useState(false);
+  const [publishError, setPublishError] = useState('');
+  const [publishSuccess, setPublishSuccess] = useState('');
+  const [videoFile, setVideoFile] = useState(null);
+  const [videoTitle, setVideoTitle] = useState('');
+  const [videoDescription, setVideoDescription] = useState('');
+  const [videoTags, setVideoTags] = useState('');
   useEffect(() => {
     setTime(new Date().toLocaleString());
   }, []);
@@ -121,12 +131,69 @@ export default function PostsPage() {
     }));
   };
 
+  const handlePublish = async () => {
+    try {
+      setPublishing(true);
+      setPublishError('');
+      setPublishSuccess('');
+
+      const targets = Object.entries(selectedPlatforms).filter(([, v]) => v).map(([k]) => k);
+      if (!postContent.trim()) {
+        throw new Error('Please enter content');
+      }
+      if (targets.length === 0) {
+        throw new Error('Select at least one platform');
+      }
+
+      // Post to Twitter if selected
+      if (selectedPlatforms.twitter) {
+        const res = await twitterService.postTweet(postContent.trim());
+        if (!res.success) {
+          throw new Error(res.error || 'Failed to post to Twitter');
+        }
+      }
+
+      // Post to YouTube if selected
+      if (selectedPlatforms.youtube) {
+        if (!videoFile) {
+          throw new Error('Please select a video for YouTube');
+        }
+        const tags = videoTags
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean);
+        const res = await youtubeService.uploadVideo(
+          videoFile,
+          videoTitle || postContent.slice(0, 80) || 'Untitled',
+          videoDescription || postContent,
+          tags
+        );
+        if (!res.success) {
+          throw new Error(res.error || 'Failed to upload to YouTube');
+        }
+      }
+
+      setPublishSuccess('Post published successfully');
+      setPostContent('');
+      setSelectedPlatforms({ instagram: false, facebook: false, twitter: false, linkedin: false, youtube: false });
+      setVideoFile(null);
+      setVideoTitle('');
+      setVideoDescription('');
+      setVideoTags('');
+    } catch (e) {
+      setPublishError(e.message || 'Failed to publish');
+    } finally {
+      setPublishing(false);
+    }
+  };
+
   const getPlatformIcon = (platform) => {
     switch (platform.toLowerCase()) {
       case 'facebook': return <Facebook size={16} className="text-blue-600" />;
       case 'instagram': return <Instagram size={16} className="text-pink-600" />;
       case 'twitter': return <Twitter size={16} className="text-sky-500" />;
       case 'linkedin': return <Linkedin size={16} className="text-blue-700" />;
+      case 'youtube': return <Youtube size={16} className="text-red-600" />;
       default: return null;
     }
   };
@@ -166,10 +233,19 @@ export default function PostsPage() {
 
                 <div className="mb-6">
                   <h3 className="text-sm font-medium text-gray-700 mb-3">MEDIA UPLOAD</h3>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+                  <label className="block border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer">
                     <Upload size={24} className="mx-auto text-gray-400 mb-2" />
-                    <p className="text-gray-600 mb-1">Drag & Drop or Click to Upload Media</p>
-                  </div>
+                    <p className="text-gray-600 mb-1">Click to upload a video (for YouTube)</p>
+                    <input
+                      type="file"
+                      accept="video/*"
+                      className="hidden"
+                      onChange={(e) => setVideoFile(e.target.files && e.target.files[0] ? e.target.files[0] : null)}
+                    />
+                    {videoFile && (
+                      <p className="text-xs text-gray-500 mt-2">Selected: {videoFile.name}</p>
+                    )}
+                  </label>
                 </div>
 
                 <div className="mb-6">
@@ -224,17 +300,71 @@ export default function PostsPage() {
                     >
                       <Linkedin size={20} className="text-blue-700" />
                     </button>
+                    <button
+                      onClick={() => handlePlatformToggle('youtube')}
+                      className={`p-3 rounded-lg border-2 transition-colors ${
+                        selectedPlatforms.youtube 
+                          ? 'border-red-600 bg-red-50' 
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      <Youtube size={20} className="text-red-600" />
+                    </button>
                   </div>
                 </div>
 
+                {selectedPlatforms.youtube && (
+                  <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-700 mb-2">YouTube Title</h3>
+                      <input
+                        type="text"
+                        value={videoTitle}
+                        onChange={(e) => setVideoTitle(e.target.value)}
+                        placeholder="Enter video title"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-700 mb-2">Tags (comma separated)</h3>
+                      <input
+                        type="text"
+                        value={videoTags}
+                        onChange={(e) => setVideoTags(e.target.value)}
+                        placeholder="e.g. marketing, product, launch"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <h3 className="text-sm font-medium text-gray-700 mb-2">YouTube Description</h3>
+                      <textarea
+                        value={videoDescription}
+                        onChange={(e) => setVideoDescription(e.target.value)}
+                        placeholder="Describe your video"
+                        className="w-full h-24 p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex space-x-3">
-                  <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                  <button disabled className="bg-blue-300 text-white px-6 py-2 rounded-lg cursor-not-allowed">
                     Schedule
                   </button>
-                  <button className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                    Publish Now
+                  <button onClick={handlePublish} disabled={publishing} className={`px-6 py-2 rounded-lg transition-colors ${publishing ? 'bg-green-300 cursor-not-allowed text-white' : 'bg-green-600 hover:bg-green-700 text-white'}`}>
+                    {publishing ? 'Publishing…' : 'Publish Now'}
                   </button>
                 </div>
+                {(publishError || publishSuccess) && (
+                  <div className="mt-4">
+                    {publishError && (
+                      <div className="bg-red-50 text-red-700 border border-red-200 rounded-md px-3 py-2 text-sm">{publishError}</div>
+                    )}
+                    {publishSuccess && (
+                      <div className="bg-green-50 text-green-700 border border-green-200 rounded-md px-3 py-2 text-sm">{publishSuccess}</div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 

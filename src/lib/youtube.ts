@@ -109,11 +109,16 @@ class YouTubeService {
     formData.append('description', description);
     formData.append('tags', tags.join(','));
 
+    const { authUtils } = await import('./auth');
+    const token = authUtils.getToken();
+
     const res = await fetch(`${this.baseURL}/api/youtube/upload-video`, {
       method: 'POST',
       credentials: 'include',
       body: formData,
-      headers: {}
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      }
     });
 
     if (!res.ok) {

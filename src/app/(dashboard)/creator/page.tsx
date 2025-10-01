@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { 
   BarChart, 
   Bar, 
@@ -17,76 +17,97 @@ import {
   User
 } from 'lucide-react';
 import Sidebar from '@/Components/Creater/Sidebar';
+import { apiRequest } from '@/lib/apiClient';
+import { authUtils } from '@/lib/auth';
 
 const Dashboard = () => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [analytics, setAnalytics] = useState<Array<Record<string, any>>>([]);
+  const [lastUpdated, setLastUpdated] = useState<number>(0);
 
-  // Sample data for charts
-  const engagementData = [
-    { month: '6/21', likes: 1200, comments: 200, shares: 150 },
-    { month: '8/21', likes: 900, comments: 180, shares: 120 },
-    { month: '10/21', likes: 1100, comments: 220, shares: 140 },
-    { month: '12/21', likes: 800, comments: 160, shares: 110 },
-    { month: '2/22', likes: 1300, comments: 250, shares: 180 },
-    { month: '4/22', likes: 1000, comments: 200, shares: 160 },
-    { month: '6/22', likes: 1400, comments: 280, shares: 200 },
-    { month: '8/22', likes: 1100, comments: 230, shares: 170 },
-    { month: '10/22', likes: 1200, comments: 240, shares: 180 },
-    { month: '12/22', likes: 900, comments: 190, shares: 150 },
-    { month: '2/23', likes: 1000, comments: 210, shares: 160 },
-    { month: '4/23', likes: 800, comments: 170, shares: 130 },
-    { month: '6/23', likes: 700, comments: 150, shares: 120 }
-  ];
-
-  const platformData = [
-    { name: 'Instagram', posts: 680, color: '#E1306C' },
-    { name: 'Facebook', posts: 520, color: '#1877F2' },
-    { name: 'X', posts: 350, color: '#1DA1F2' },
-    { name: 'LinkedIn', posts: 180, color: '#0077B5' },
-    { name: 'YouTube', posts: 120, color: '#FF0000' }
-  ];
-
-  const topPosts = [
-    {
-      id: 1,
-      thumbnail: '📸',
-      content: 'Our new campaign launch was a huge success! So much positive feedback. Feeling grateful for our community.',
-      platform: 'Instagram',
-      engagement: '12,890',
-      platformColor: '#E1306C'
-    },
-    {
-      id: 2,
-      thumbnail: '💡',
-      content: 'Behind the scenes: Brainstorming fresh content ideas for Q1! Get ready for some exciting announcements!',
-      platform: 'Facebook',
-      engagement: '9,234',
-      platformColor: '#1877F2'
-    },
-    {
-      id: 3,
-      thumbnail: '📊',
-      content: 'Understanding audience demographics is key to targeted marketing. Dive deep into our latest insights report.',
-      platform: 'LinkedIn',
-      engagement: '7,891',
-      platformColor: '#0077B5'
-    },
-    {
-      id: 4,
-      thumbnail: '🎯',
-      content: 'Quick thoughts about the industry trends is sparking some great conversations. What are your thoughts?',
-      platform: 'X',
-      engagement: '5,678',
-      platformColor: '#1DA1F2'
-    },
-    {
-      id: 5,
-      thumbnail: '👥',
-      content: 'User-generated content is our favorite! Thanks for sharing your amazing experiences with our platform!',
-      platform: 'Instagram',
-      engagement: '4,123',
-      platformColor: '#E1306C'
+  const fetchAnalytics = async () => {
+    try {
+      setError(null);
+      const user = authUtils.getUser() as { id?: string } | null;
+      const userId = user?.id || (authUtils as unknown as { getUserId?: () => string }).getUserId?.();
+      if (!userId) throw new Error('Not authenticated');
+      const res = await apiRequest<{ success: boolean; data: { analytics: any[] } }>(`/api/analytics/user/${userId}`);
+      setAnalytics(res?.data?.analytics || []);
+      setLastUpdated(Date.now());
+    } catch (e) {
+      setError((e as Error).message || 'Failed to load analytics');
+      setAnalytics([]);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    fetchAnalytics();
+    const interval = setInterval(fetchAnalytics, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const engagementData = useMemo(() => {
+    const byMonth: Record<string, { likes: number; comments: number; shares: number }> = {};
+    analytics.forEach((a) => {
+      const d = a?.timing?.posted_at ? new Date(a.timing.posted_at) : new Date();
+      const key = `${d.getMonth() + 1}/${String(d.getFullYear()).slice(-2)}`;
+      if (!byMonth[key]) byMonth[key] = { likes: 0, comments: 0, shares: 0 };
+      byMonth[key].likes += a?.metrics?.likes || 0;
+      byMonth[key].comments += a?.metrics?.comments || 0;
+      byMonth[key].shares += a?.metrics?.shares || 0;
+    });
+    return Object.entries(byMonth).map(([month, v]) => ({ month, ...v }));
+  }, [analytics]);
+
+  const platformData = useMemo(() => {
+    const colors: Record<string, string> = {
+      instagram: '#E1306C',
+      facebook: '#1877F2',
+      twitter: '#1DA1F2',
+      linkedin: '#0077B5',
+      youtube: '#FF0000',
+      tiktok: '#010101'
+    };
+    const counts: Record<string, number> = {};
+    analytics.forEach((a) => {
+      const p = String(a.platform || '').toLowerCase();
+      counts[p] = (counts[p] || 0) + 1;
+    });
+    return Object.entries(counts).map(([name, posts]) => ({ name, posts, color: colors[name] || '#999999' }));
+  }, [analytics]);
+
+  const topPosts = useMemo(() => {
+    return [...analytics]
+      .map((a) => ({
+        id: a.post_id,
+        thumbnail: a.content?.media_type === 'video' ? '🎥' : '📸',
+        content: a.content?.caption || a.post_id,
+        platform: (a.platform || '').toString(),
+        engagement: String((a.metrics?.likes || 0) + (a.metrics?.comments || 0) + (a.metrics?.shares || 0)),
+        platformColor:
+          a.platform === 'instagram' ? '#E1306C' :
+          a.platform === 'facebook' ? '#1877F2' :
+          a.platform === 'twitter' ? '#1DA1F2' :
+          a.platform === 'linkedin' ? '#0077B5' :
+          a.platform === 'youtube' ? '#FF0000' : '#999999'
+      }))
+      .sort((p1, p2) => parseInt(p2.engagement) - parseInt(p1.engagement))
+      .slice(0, 5);
+  }, [analytics]);
+
+  const totals = useMemo(() => {
+    const sum = (key: string) => analytics.reduce((s, a) => s + (a.metrics?.[key] || 0), 0);
+    return {
+      totalPosts: analytics.length,
+      scheduledPosts: 0,
+      engagementRate: analytics.length ? (((sum('likes') + sum('comments') + sum('shares')) / Math.max(sum('views'), 1)) * 100).toFixed(1) : '0.0',
+      avgEngagementScore: analytics.length ? Math.round((sum('likes') + sum('comments') * 2 + sum('shares') * 3) / analytics.length) : 0,
+      lastUpdated
+    };
+  }, [analytics, lastUpdated]);
 
 
 
@@ -113,26 +134,35 @@ const Dashboard = () => {
 
         {/* Dashboard Content */}
         <div className="p-6 overflow-y-auto h-full bg-gradient-to-br from-purple-100 to-blue-100">
+          {loading && (
+            <div className="bg-white rounded-lg p-4 mb-4 border shadow-sm">Loading analytics…</div>
+          )}
+          {!!error && (
+            <div className="bg-red-50 text-red-700 rounded-lg p-4 mb-4 border border-red-200">{error}</div>
+          )}
+          {!loading && !error && (
+            <p className="text-xs text-gray-500 mb-4">Last updated: {new Date(totals.lastUpdated).toLocaleTimeString()}</p>
+          )}
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <h3 className="text-sm text-gray-500 mb-2">Total Posts</h3>
-              <p className="text-3xl font-bold text-gray-800">1,567</p>
+              <p className="text-3xl font-bold text-gray-800">{totals.totalPosts}</p>
               <p className="text-xs text-green-600 mt-1">+12% from last month</p>
             </div>
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <h3 className="text-sm text-gray-500 mb-2">Scheduled Posts</h3>
-              <p className="text-3xl font-bold text-gray-800">245</p>
+              <p className="text-3xl font-bold text-gray-800">{totals.scheduledPosts}</p>
               <p className="text-xs text-blue-600 mt-1">+5% from last month</p>
             </div>
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <h3 className="text-sm text-gray-500 mb-2">Engagement Rate</h3>
-              <p className="text-3xl font-bold text-gray-800">8.7%</p>
+              <p className="text-3xl font-bold text-gray-800">{totals.engagementRate}%</p>
               <p className="text-xs text-green-600 mt-1">+2.1% from last month</p>
             </div>
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <h3 className="text-sm text-gray-500 mb-2">Avg. All Engagement Score</h3>
-              <p className="text-3xl font-bold text-gray-800">78</p>
+              <p className="text-3xl font-bold text-gray-800">{totals.avgEngagementScore}</p>
               <p className="text-xs text-red-600 mt-1">-3% from last month</p>
             </div>
           </div>

@@ -1,4 +1,4 @@
-// src/lib/twitter.ts
+// src/lib/twitter.ts FRONTEND 
 import { config } from './config';
 import { apiRequest } from './apiClient';
 
