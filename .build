@@ -1,0 +1,8 @@
+# Build/deploy configuration for frontend
+PROJECT_ID=
+REGION=us-central1
+SERVICE=bloocube-frontend
+IMAGE=gcr.io/$PROJECT_ID/$SERVICE:$(date +%Y%m%d-%H%M%S)
+PORT=3000
+# API URL for frontend runtime
+NEXT_PUBLIC_API_URL=
