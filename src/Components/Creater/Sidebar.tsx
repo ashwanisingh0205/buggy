@@ -8,10 +8,10 @@ import {
   Settings,
   User,
   Store,
-  Briefcase,
 } from 'lucide-react';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import Logout from '../Logout';
 import { authUtils } from '@/lib/auth';
 
@@ -20,7 +20,6 @@ const sidebarItems = [
   { name: 'Posts', icon: FileText, href: '/creator/posts' },
   { name: 'Analytics', icon: BarChart3, href: '/creator/analytics' },
   { name: 'Marketplace', icon: Store, href: '/creator/marketplace' },
-  { name: 'Campaigns', icon: Briefcase, href: '/creator/campaigns' },
   { name: 'Competitor Analysis', icon: Users, href: '/creator/competitors' },
   { name: 'Settings', icon: Settings, href: '/creator/settings' },
 ];
@@ -83,8 +82,8 @@ const UserInfo = React.memo(({ user }: { user: Record<string, unknown> | null })
 UserInfo.displayName = 'UserInfo';
 
 const Sidebar = React.memo(() => {
-  const [activeTab, setActiveTab] = useState('Overview');
   const [user, setUser] = useState<Record<string, unknown> | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     // Get user information on component mount
@@ -93,7 +92,8 @@ const Sidebar = React.memo(() => {
   }, []);
 
   const handleItemClick = useCallback((name: string) => {
-    setActiveTab(name);
+    // This is now handled by Next.js routing, but keeping for potential future use
+    console.log('Sidebar item clicked:', name);
   }, []);
 
   // Memoized sidebar items
@@ -102,10 +102,10 @@ const Sidebar = React.memo(() => {
       <SidebarItem
         key={item.name}
         item={item}
-        isActive={typeof window !== 'undefined' ? (window.location.pathname.startsWith(item.href)) : (item.name === activeTab)}
+        isActive={pathname.startsWith(item.href)}
         onItemClick={handleItemClick}
       />
-    )), [activeTab, handleItemClick]);
+    )), [pathname, handleItemClick]);
 
   return (
     <div className="w-64 bg-white shadow-lg flex flex-col h-full">
