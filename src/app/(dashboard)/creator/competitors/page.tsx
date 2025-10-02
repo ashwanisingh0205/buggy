@@ -1,8 +1,10 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { Search, Filter, TrendingUp, Users, Eye, Heart, MessageCircle, Share2, BarChart3, Target, Zap } from 'lucide-react';
+import { Search, Filter, TrendingUp, Users, Eye, Heart, MessageCircle, Share2, BarChart3, Target, Zap, Plus, ExternalLink } from 'lucide-react';
 import Sidebar from '@/Components/Creater/Sidebar';
 import { Menu } from 'lucide-react';
+import { apiRequest } from '@/lib/apiClient';
+import Link from 'next/link';
 
 interface Competitor {
   id: string;
@@ -19,6 +21,18 @@ interface Competitor {
   category: string;
   verified: boolean;
   avatar: string;
+  profileUrl?: string;
+  lastAnalyzed?: string;
+  analysisId?: string;
+}
+
+interface AnalysisHistory {
+  id: string;
+  competitorUrls: string[];
+  analysisType: string;
+  competitorsAnalyzed: number;
+  createdAt: string;
+  status: 'completed' | 'failed' | 'processing';
 }
 
 const CompetitorAnalysisPage = () => {
@@ -28,9 +42,17 @@ const CompetitorAnalysisPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [competitors, setCompetitors] = useState<Competitor[]>([]);
   const [loading, setLoading] = useState(true);
+  const [analysisHistory, setAnalysisHistory] = useState<AnalysisHistory[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
 
-  // Mock data for demonstration
+  // Load competitor data and analysis history
   useEffect(() => {
+    loadCompetitorData();
+    loadAnalysisHistory();
+  }, []);
+
+  const loadCompetitorData = async () => {
+    // For now, using mock data. In production, this would load from saved competitors
     const mockCompetitors: Competitor[] = [
       {
         id: '1',
@@ -46,7 +68,9 @@ const CompetitorAnalysisPage = () => {
         growthRate: 8.5,
         category: 'Technology',
         verified: true,
-        avatar: '/api/placeholder/60/60'
+        avatar: '/api/placeholder/60/60',
+        profileUrl: 'https://youtube.com/@techreviewerpro',
+        lastAnalyzed: '2024-01-15T10:30:00Z'
       },
       {
         id: '2',
@@ -118,7 +142,22 @@ const CompetitorAnalysisPage = () => {
       setCompetitors(mockCompetitors);
       setLoading(false);
     }, 1000);
-  }, []);
+  };
+
+  const loadAnalysisHistory = async () => {
+    try {
+      const response = await apiRequest<{
+        success: boolean;
+        data: { analyses: AnalysisHistory[] };
+      }>('/api/competitors/history');
+      
+      if (response.success) {
+        setAnalysisHistory(response.data.analyses);
+      }
+    } catch (error) {
+      console.error('Failed to load analysis history:', error);
+    }
+  };
 
   const filteredCompetitors = competitors.filter(competitor => {
     const matchesSearch = competitor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -191,6 +230,19 @@ const CompetitorAnalysisPage = () => {
                   <p className="hidden md:block mt-2 text-gray-600">Analyze your competitors and discover growth opportunities</p>
                 </div>
                 <div className="flex items-center space-x-4">
+                  <Link href="/creator/competitors/analyze">
+                    <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+                      <Plus className="w-4 h-4" />
+                      <span>New Analysis</span>
+                    </button>
+                  </Link>
+                  <button
+                    onClick={() => setShowHistory(!showHistory)}
+                    className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2"
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                    <span>History</span>
+                  </button>
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <input
@@ -234,6 +286,53 @@ const CompetitorAnalysisPage = () => {
                 </select>
               </div>
             </div>
+
+            {/* Analysis History Section */}
+            {showHistory && (
+              <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
+                <h2 className="text-lg font-semibold mb-4">Analysis History</h2>
+                {analysisHistory.length > 0 ? (
+                  <div className="space-y-4">
+                    {analysisHistory.slice(0, 5).map((analysis) => (
+                      <div key={analysis.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                        <div>
+                          <div className="font-medium">
+                            {analysis.competitorsAnalyzed} competitors analyzed
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            {analysis.analysisType} • {new Date(analysis.createdAt).toLocaleDateString()}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {analysis.competitorUrls.slice(0, 2).join(', ')}
+                            {analysis.competitorUrls.length > 2 && ` +${analysis.competitorUrls.length - 2} more`}
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            analysis.status === 'completed' ? 'bg-green-100 text-green-800' :
+                            analysis.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {analysis.status}
+                          </span>
+                          {analysis.status === 'completed' && (
+                            <button className="text-blue-600 hover:text-blue-700">
+                              <ExternalLink className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <BarChart3 className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                    <p>No analysis history yet</p>
+                    <p className="text-sm">Start your first competitor analysis to see results here</p>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Loading State */}
             {loading && (
@@ -313,14 +412,31 @@ const CompetitorAnalysisPage = () => {
 
                       {/* Actions */}
                       <div className="flex space-x-2">
-                        <button className="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
-                          <Eye className="w-4 h-4 inline mr-1" />
-                          Analyze
-                        </button>
-                        <button className="px-3 py-2 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
-                          <BarChart3 className="w-4 h-4" />
-                        </button>
+                        <Link 
+                          href={`/creator/competitors/analyze?url=${encodeURIComponent(competitor.profileUrl || '')}`}
+                          className="flex-1"
+                        >
+                          <button className="w-full px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                            <Eye className="w-4 h-4 inline mr-1" />
+                            Analyze
+                          </button>
+                        </Link>
+                        {competitor.lastAnalyzed && (
+                          <button 
+                            className="px-3 py-2 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                            title="View last analysis"
+                          >
+                            <BarChart3 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
+                      
+                      {/* Last analyzed info */}
+                      {competitor.lastAnalyzed && (
+                        <div className="mt-2 text-xs text-gray-500 text-center">
+                          Last analyzed: {new Date(competitor.lastAnalyzed).toLocaleDateString()}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
