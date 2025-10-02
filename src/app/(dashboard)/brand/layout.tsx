@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bell, Briefcase, Home, Settings, Users } from 'lucide-react';
+import { Bell, Briefcase, Home, Settings, Users, Store } from 'lucide-react';
 import React from 'react';
 
 export default function BrandLayout({ children }: { children: React.ReactNode }) {
@@ -9,6 +9,7 @@ export default function BrandLayout({ children }: { children: React.ReactNode })
   const nav = [
     { name: 'Overview', href: '/brand', icon: Home },
     { name: 'Campaigns', href: '/brand/campaigns', icon: Briefcase },
+    { name: 'Marketplace', href: '/brand/marketplace', icon: Store },
     { name: 'Bids', href: '/brand/bids', icon: Users },
     { name: 'Notifications', href: '/brand/notifications', icon: Bell },
     { name: 'Settings', href: '/brand/settings', icon: Settings }
