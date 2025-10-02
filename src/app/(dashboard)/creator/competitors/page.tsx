@@ -68,7 +68,7 @@ const CompetitorAnalysisPage = () => {
         id: '3',
         name: 'Fitness Guru',
         handle: '@fitnessguru',
-        platform: 'TikTok',
+        platform: 'Instagram',
         followers: 2100000,
         engagement: 9.1,
         avgLikes: 180000,
@@ -218,7 +218,6 @@ const CompetitorAnalysisPage = () => {
                   <option value="all">All Platforms</option>
                   <option value="youtube">YouTube</option>
                   <option value="instagram">Instagram</option>
-                  <option value="tiktok">TikTok</option>
                   <option value="twitter">Twitter</option>
                 </select>
                 <select 

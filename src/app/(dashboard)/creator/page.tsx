@@ -69,7 +69,6 @@ const Dashboard = () => {
       twitter: '#1DA1F2',
       linkedin: '#0077B5',
       youtube: '#FF0000',
-      tiktok: '#010101'
     };
     const counts: Record<string, number> = {};
     analytics.forEach((a) => {

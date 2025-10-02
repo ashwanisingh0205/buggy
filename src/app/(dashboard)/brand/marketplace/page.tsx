@@ -263,7 +263,6 @@ export default function BrandMarketplacePage() {
             <option value="all">All Platforms</option>
             <option value="instagram">Instagram</option>
             <option value="youtube">YouTube</option>
-            <option value="tiktok">TikTok</option>
             <option value="twitter">Twitter</option>
             <option value="linkedin">LinkedIn</option>
           </select>
