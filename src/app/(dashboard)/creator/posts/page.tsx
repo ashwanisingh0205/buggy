@@ -35,29 +35,8 @@ import Sidebar from '@/Components/Creater/Sidebar';
 import { apiRequest } from '@/lib/apiClient';
 import { authUtils } from '@/lib/auth';
 
-// Platform configurations with proper typing
-interface PlatformFieldConfig {
-  required: boolean;
-  placeholder: string;
-  maxLength?: number;
-  type?: string;
-  options?: string[];
-  default?: string;
-  label?: string;
-}
-
-interface PlatformConfig {
-  name: string;
-  icon: React.ComponentType<any>;
-  color: string;
-  postTypes: string[];
-  maxCaptionLength: number;
-  supportedMedia: string[];
-  fields: Record<string, PlatformFieldConfig>;
-}
-
 // Platform configurations
-const PLATFORM_CONFIGS: Record<string, PlatformConfig> = {
+const PLATFORM_CONFIGS = {
   instagram: {
     name: 'Instagram',
     icon: Instagram,
@@ -84,23 +63,27 @@ const PLATFORM_CONFIGS: Record<string, PlatformConfig> = {
       title: { required: true, placeholder: 'Enter video title (max 100 characters)', maxLength: 100 },
       description: { required: false, placeholder: 'Tell viewers about your video', maxLength: 5000 },
       tags: { required: false, placeholder: 'gaming, tutorial, review' },
-      category: { required: false, placeholder: 'Select category', options: ['Entertainment', 'Education', 'Gaming', 'Music', 'News', 'Sports', 'Technology'] },
-      privacy: { required: false, placeholder: 'Select privacy', options: ['public', 'unlisted', 'private'], default: 'public' },
-      thumbnail: { required: false, placeholder: 'Upload thumbnail', type: 'file' }
+      category: { required: false, options: ['Entertainment', 'Education', 'Gaming', 'Music', 'News', 'Sports', 'Technology'] },
+      privacy: { required: false, options: ['public', 'unlisted', 'private'], default: 'public' },
+      thumbnail: { required: false, type: 'file' }
     }
   },
   twitter: {
     name: 'Twitter',
     icon: Twitter,
     color: 'sky',
-    postTypes: ['post', 'thread', 'poll'],
+    postTypes: ['tweet', 'thread', 'poll'],
     maxCaptionLength: 280,
-    supportedMedia: ['image', 'video'],
+    supportedMedia: ['image', 'video', 'gif'],
     fields: {
-      content: { required: true, placeholder: "What's happening?", maxLength: 280 },
-      thread: { required: false, type: 'array', placeholder: 'Add another tweet to thread' },
-      poll: { required: false, placeholder: 'Create a poll', type: 'poll', options: ['Option 1', 'Option 2'] },
-      replySettings: { required: false, placeholder: 'Who can reply?', options: ['everyone', 'following', 'mentioned'], default: 'everyone' }
+      // Basic content field for all tweet types
+      content: { 
+        required: true, 
+        placeholder: "What's happening?", 
+        maxLength: 280,
+        label: 'Tweet Content'
+      },
+      // Additional fields will be handled in the TwitterPostForm component
     }
   },
   linkedin: {
@@ -114,7 +97,7 @@ const PLATFORM_CONFIGS: Record<string, PlatformConfig> = {
       content: { required: true, placeholder: 'Share your professional thoughts...' },
       hashtags: { required: false, placeholder: '#professional #networking #career' },
       mentions: { required: false, placeholder: '@connection' },
-      visibility: { required: false, placeholder: 'Who can see this?', options: ['public', 'connections'], default: 'public' },
+      visibility: { required: false, options: ['public', 'connections'], default: 'public' },
       articleTitle: { required: false, placeholder: 'Article title (for article posts)' },
       articleBody: { required: false, placeholder: 'Article content', type: 'textarea' }
     }
@@ -150,6 +133,232 @@ interface Post {
   [key: string]: any;
 }
 
+// Twitter-specific form component
+const TwitterPostForm = ({ postData, onFieldChange, selectedPostType }: { 
+  postData: any; 
+  onFieldChange: (field: string, value: any) => void; 
+  selectedPostType: string;
+}) => {
+  const [pollOptions, setPollOptions] = useState(['', '']);
+  const [threadTweets, setThreadTweets] = useState(['']);
+
+  // Handle poll option changes
+  const handlePollOptionChange = (index: number, value: string) => {
+    const newOptions = [...pollOptions];
+    newOptions[index] = value;
+    setPollOptions(newOptions);
+    onFieldChange('poll_options', newOptions.filter(opt => opt.trim()));
+  };
+
+  // Add poll option
+  const addPollOption = () => {
+    if (pollOptions.length < 4) {
+      setPollOptions([...pollOptions, '']);
+    }
+  };
+
+  // Remove poll option
+  const removePollOption = (index: number) => {
+    if (pollOptions.length > 2) {
+      const newOptions = pollOptions.filter((_, i) => i !== index);
+      setPollOptions(newOptions);
+      onFieldChange('poll_options', newOptions.filter(opt => opt.trim()));
+    }
+  };
+
+  // Handle thread tweet changes
+  const handleThreadTweetChange = (index: number, value: string) => {
+    const newThread = [...threadTweets];
+    newThread[index] = value;
+    setThreadTweets(newThread);
+    onFieldChange('thread', newThread.filter(tweet => tweet.trim()));
+  };
+
+  // Add thread tweet
+  const addThreadTweet = () => {
+    if (threadTweets.length < 25) {
+      setThreadTweets([...threadTweets, '']);
+    }
+  };
+
+  // Remove thread tweet
+  const removeThreadTweet = (index: number) => {
+    if (threadTweets.length > 1) {
+      const newThread = threadTweets.filter((_, i) => i !== index);
+      setThreadTweets(newThread);
+      onFieldChange('thread', newThread.filter(tweet => tweet.trim()));
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Basic Tweet Content - Always shown */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Tweet Content *
+        </label>
+        <textarea
+          value={postData.content || ''}
+          onChange={(e) => onFieldChange('content', e.target.value)}
+          placeholder="What's happening?"
+          maxLength={280}
+          rows={3}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+        />
+        <div className="text-xs text-gray-500 mt-1">
+          {postData.content?.length || 0}/280 characters
+        </div>
+      </div>
+
+      {/* Thread Section - Only for thread type */}
+      {selectedPostType === 'thread' && (
+        <div className="border-l-4 border-blue-500 pl-4">
+          <h4 className="text-sm font-medium text-gray-700 mb-3">Thread Tweets</h4>
+          <div className="space-y-3">
+            {threadTweets.map((tweet, index) => (
+              <div key={index} className="flex space-x-2">
+                <div className="flex-shrink-0 pt-3 text-sm text-gray-500">{index + 1}.</div>
+                <textarea
+                  value={tweet}
+                  onChange={(e) => handleThreadTweetChange(index, e.target.value)}
+                  placeholder={`Tweet ${index + 1} of your thread`}
+                  maxLength={280}
+                  rows={2}
+                  className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                />
+                {threadTweets.length > 1 && (
+                  <button
+                    onClick={() => removeThreadTweet(index)}
+                    className="flex-shrink-0 p-3 text-red-500 hover:text-red-700"
+                    type="button"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+            ))}
+            {threadTweets.length < 25 && (
+              <button
+                onClick={addThreadTweet}
+                className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 text-sm"
+                type="button"
+              >
+                <Plus size={14} />
+                <span>Add Tweet to Thread</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Poll Section - Only for poll type */}
+      {selectedPostType === 'poll' && (
+        <div className="border-l-4 border-green-500 pl-4">
+          <h4 className="text-sm font-medium text-gray-700 mb-3">Poll Settings</h4>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Poll Question *
+            </label>
+            <input
+              type="text"
+              value={postData.poll_question || ''}
+              onChange={(e) => onFieldChange('poll_question', e.target.value)}
+              placeholder="Ask a question for your poll..."
+              maxLength={280}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Poll Options */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Poll Options * (2-4 options)
+            </label>
+            <div className="space-y-2">
+              {pollOptions.map((option, index) => (
+                <div key={index} className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={option}
+                    onChange={(e) => handlePollOptionChange(index, e.target.value)}
+                    placeholder={`Option ${index + 1}`}
+                    maxLength={25}
+                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {pollOptions.length > 2 && (
+                    <button
+                      onClick={() => removePollOption(index)}
+                      className="flex-shrink-0 p-3 text-red-500 hover:text-red-700"
+                      type="button"
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            {pollOptions.length < 4 && (
+              <button
+                onClick={addPollOption}
+                className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 text-sm mt-2"
+                type="button"
+              >
+                <Plus size={14} />
+                <span>Add Option</span>
+              </button>
+            )}
+          </div>
+
+          {/* Poll Duration */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Poll Duration *
+            </label>
+            <select
+              value={postData.poll_duration || 1440}
+              onChange={(e) => onFieldChange('poll_duration', parseInt(e.target.value))}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value={60}>1 hour</option>
+              <option value={1440}>24 hours</option>
+              <option value={10080}>7 days</option>
+            </select>
+          </div>
+
+          {/* Debug Info */}
+          <div className="bg-gray-100 p-3 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-700 mb-2">Debug Info</h4>
+            <pre className="text-xs text-gray-600">
+              {JSON.stringify({
+                poll_question: postData.poll_question,
+                poll_options: postData.poll_options,
+                poll_duration: postData.poll_duration
+              }, null, 2)}
+            </pre>
+          </div>
+        </div>
+      )}
+
+      {/* Reply Settings - For all types */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Reply Settings
+        </label>
+        <select
+          value={postData.reply_settings || 'everyone'}
+          onChange={(e) => onFieldChange('reply_settings', e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="everyone">Everyone can reply</option>
+          <option value="following">People you follow</option>
+          <option value="mentioned">Only people you mention</option>
+        </select>
+      </div>
+    </div>
+  );
+};
+
 export default function PostsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string>('');
@@ -163,40 +372,13 @@ export default function PostsPage() {
   const [scheduledPosts, setScheduledPosts] = useState<Post[]>([]);
   const [activeTab, setActiveTab] = useState('create');
   const [youtubeConnected, setYoutubeConnected] = useState<boolean>(false);
-  const [twitterConnected, setTwitterConnected] = useState<boolean>(false);
   const [checkingConnection, setCheckingConnection] = useState<boolean>(false);
 
   // Load posts on component mount
   useEffect(() => {
     loadPosts();
-    checkConnections();
+    checkYouTubeConnection();
   }, []);
-
-  const checkConnections = async () => {
-    try {
-      setCheckingConnection(true);
-      
-      // Check YouTube connection
-      try {
-        const youtubeResponse = await apiRequest('/api/youtube/channel') as any;
-        setYoutubeConnected(youtubeResponse.success);
-      } catch (err) {
-        setYoutubeConnected(false);
-      }
-      
-      // Check Twitter connection
-      try {
-        const twitterResponse = await apiRequest('/api/twitter/profile') as any;
-        setTwitterConnected(twitterResponse.success && !!twitterResponse.profile);
-      } catch (err) {
-        setTwitterConnected(false);
-      }
-    } catch (err) {
-      console.error('Connection check error:', err);
-    } finally {
-      setCheckingConnection(false);
-    }
-  };
 
   const checkYouTubeConnection = async () => {
     try {
@@ -221,7 +403,7 @@ export default function PostsPage() {
     }
   };
 
-  const handlePlatformSelect = async (platform: string) => {
+  const handlePlatformSelect = (platform: string) => {
     setSelectedPlatform(platform);
     setSelectedPostType('');
     setPostData({});
@@ -229,27 +411,9 @@ export default function PostsPage() {
     setError('');
     setSuccess('');
 
-    // Check platform connections when selected
+    // Check YouTube connection when YouTube is selected
     if (platform === 'youtube') {
-      try {
-        setCheckingConnection(true);
-        const response = await apiRequest('/api/youtube/channel') as any;
-        setYoutubeConnected(response.success);
-      } catch (err) {
-        setYoutubeConnected(false);
-      } finally {
-        setCheckingConnection(false);
-      }
-    } else if (platform === 'twitter') {
-      try {
-        setCheckingConnection(true);
-        const response = await apiRequest('/api/twitter/profile') as any;
-        setTwitterConnected(response.success && !!response.profile);
-      } catch (err) {
-        setTwitterConnected(false);
-      } finally {
-        setCheckingConnection(false);
-      }
+      checkYouTubeConnection();
     }
   };
 
@@ -268,10 +432,8 @@ export default function PostsPage() {
   const handleMediaUpload = (files: FileList | null) => {
     if (files) {
       const fileArray = Array.from(files);
-      const config = PLATFORM_CONFIGS[selectedPlatform];
+      const config = PLATFORM_CONFIGS[selectedPlatform as keyof typeof PLATFORM_CONFIGS];
       
-      if (!config) return;
-
       // Validate file types
       const validFiles = fileArray.filter(file => {
         const fileType = file.type.startsWith('image/') ? 'image' : 
@@ -287,249 +449,408 @@ export default function PostsPage() {
     if (!selectedPlatform || !selectedPostType) {
       throw new Error('Please select platform and post type');
     }
-  
-    const config = PLATFORM_CONFIGS[selectedPlatform];
-    if (!config) {
-      throw new Error('Invalid platform selected');
-    }
+
+    const config = PLATFORM_CONFIGS[selectedPlatform as keyof typeof PLATFORM_CONFIGS];
     
-    // Check required fields with better error messages
+    // Check required fields
     Object.entries(config.fields).forEach(([field, fieldConfig]) => {
-      if (fieldConfig.required) {
-        if (!postData[field] && postData[field] !== false) {
-          throw new Error(`${field.charAt(0).toUpperCase() + field.slice(1)} is required for ${config.name}`);
-        }
-        
-        // Additional validation for specific fields
-        if (field === 'title' && postData[field] && postData[field].length > 100) {
-          throw new Error('Title must be 100 characters or less');
-        }
-        
-        if (field === 'content' && postData[field] && postData[field].length > config.maxCaptionLength) {
-          throw new Error(`Content exceeds maximum length of ${config.maxCaptionLength} characters`);
-        }
+      if (fieldConfig.required && (!postData[field] || postData[field].toString().trim().length === 0)) {
+        throw new Error(`${field.charAt(0).toUpperCase() + field.slice(1)} is required for ${config.name}`);
       }
     });
-  
-    // Check platform connections
-    if (selectedPlatform === 'youtube' && !youtubeConnected) {
-      throw new Error('Please connect your YouTube account in Settings before posting');
+
+    // Check caption/content length
+    const contentField = postData.caption || postData.content || '';
+    if (contentField && contentField.length > config.maxCaptionLength) {
+      throw new Error(`Content exceeds maximum length of ${config.maxCaptionLength} characters`);
     }
-  
-    if (selectedPlatform === 'twitter' && !twitterConnected) {
-      throw new Error('Please connect your Twitter account in Settings before posting');
+
+    // Platform-specific validations
+    if (selectedPlatform === 'youtube') {
+      if (!youtubeConnected) {
+        throw new Error('Please connect your YouTube account in Settings before posting');
+      }
+      if (mediaFiles.length === 0) {
+        throw new Error('Video file is required for YouTube posts');
+      }
+      if (!postData.title || postData.title.trim().length === 0) {
+        throw new Error('Title is required for YouTube posts');
+      }
     }
-  
-    // Check media requirements
-    if (selectedPlatform === 'youtube' && mediaFiles.length === 0) {
-      throw new Error('Video file is required for YouTube posts');
+
+    if (selectedPlatform === 'twitter') {
+      if (!postData.content || postData.content.trim().length === 0) {
+        throw new Error('Content is required for Twitter posts');
+      }
+      
+      // Validate thread data
+      if (selectedPostType === 'thread' && postData.thread && Array.isArray(postData.thread)) {
+        const validThreadTweets = postData.thread.filter((tweet: string) => tweet && tweet.trim().length > 0);
+        if (validThreadTweets.length === 0) {
+          throw new Error('Thread must contain at least one valid tweet');
+        }
+      }
+      
+      // Validate poll data
+      if (selectedPostType === 'poll') {
+        if (!postData.poll_question || postData.poll_question.trim().length === 0) {
+          throw new Error('Poll question is required');
+        }
+        if (!postData.poll_options || postData.poll_options.length < 2) {
+          throw new Error('Poll must have at least 2 options');
+        }
+        const validOptions = postData.poll_options.filter((opt: string) => opt && opt.trim().length > 0);
+        if (validOptions.length < 2) {
+          throw new Error('Poll must have at least 2 valid options');
+        }
+      }
+    }
+
+    if (selectedPlatform === 'linkedin') {
+      if (!postData.content || postData.content.trim().length === 0) {
+        throw new Error('Content is required for LinkedIn posts');
+      }
+    }
+
+    // Validate media files
+    if (mediaFiles.length > 0) {
+      mediaFiles.forEach((file, index) => {
+        const fileType = file.type.startsWith('image/') ? 'image' : 
+                        file.type.startsWith('video/') ? 'video' : 'other';
+        if (!config.supportedMedia.includes(fileType)) {
+          throw new Error(`File ${index + 1} (${file.name}) is not supported for ${config.name}`);
+        }
+      });
     }
   };
+
+  // Test function to debug API connection
+  const testApiConnection = async () => {
+    try {
+      console.log('🧪 Testing API connection...');
+      const response = await fetch('/api/health', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      console.log('🧪 Health check response:', response.status, response.statusText);
+    } catch (error) {
+      console.error('🧪 API connection test failed:', error);
+    }
+  };
+
+  // Test function to try minimal post creation
+  const testMinimalPost = async () => {
+    try {
+      console.log('🧪 Testing minimal post creation...');
+      
+      const minimalPayload = {
+        platform: 'twitter',
+        post_type: 'tweet',
+        status: 'draft',
+        content: {
+          caption: 'Test post from Bloocube',
+          hashtags: [],
+          mentions: []
+        },
+        media: []
+      };
+      
+      console.log('🧪 Sending minimal payload:', JSON.stringify(minimalPayload, null, 2));
+      
+      const response = await apiRequest('/api/posts', {
+        method: 'POST',
+        body: JSON.stringify(minimalPayload)
+      });
+      
+      console.log('🧪 Minimal post test successful:', response);
+    } catch (error) {
+      console.error('🧪 Minimal post test failed:', error);
+    }
+  };
+
+  // Test function to check authentication
+  const testAuth = async () => {
+    try {
+      console.log('🔐 Testing authentication...');
+      
+      // Check if we have a token
+      const token = localStorage.getItem('token');
+      console.log('🔐 Token exists:', !!token);
+      
+      // Test a simple authenticated request
+      const response = await apiRequest('/api/user/profile', {
+        method: 'GET'
+      });
+      
+      console.log('🔐 Auth test successful:', response);
+    } catch (error) {
+      console.error('🔐 Auth test failed:', error);
+    }
+  };
+
+  // Test function to debug form data
+  const debugFormData = () => {
+    console.log('🔍 FORM DEBUG:', {
+      selectedPlatform,
+      selectedPostType,
+      postData,
+      postDataKeys: Object.keys(postData),
+      postDataValues: Object.values(postData),
+      mediaFiles: mediaFiles.length
+    });
+  };
+
+// Enhanced Twitter post payload creation
+const createTwitterPostPayload = (postData: any, selectedPostType: string, mediaFiles: File[]) => {
+  const basePayload: any = {
+    platform: 'twitter',
+    post_type: selectedPostType,
+    status: 'draft',
+    title: postData.content || postData.poll_question || 'Twitter Post',
+    content: {
+      caption: postData.content || '',
+      hashtags: postData.hashtags ? 
+        postData.hashtags.split(',').map((h: string) => h.trim()).filter(Boolean) : [],
+      mentions: postData.mentions ? 
+        postData.mentions.split(',').map((m: string) => m.trim()).filter(Boolean) : []
+    }
+  };
+
+  // Twitter-specific content
+  const twitterContent: any = {
+    reply_settings: postData.reply_settings || 'everyone'
+  };
+
+  // Handle different Twitter post types
+  if (selectedPostType === 'poll') {
+    // For polls, use poll_question as the main content
+    if (postData.poll_question) {
+      basePayload.content.caption = postData.poll_question;
+      basePayload.title = postData.poll_question;
+    }
+    
+    twitterContent.poll = {
+      question: postData.poll_question || postData.content || 'Poll',
+      options: (postData.poll_options || []).filter((opt: string) => opt.trim()),
+      duration_minutes: postData.poll_duration || 1440
+    };
+    twitterContent.tweet_type = 'poll';
+    
+  } else if (selectedPostType === 'thread' && postData.thread) {
+    twitterContent.thread = postData.thread
+      .filter((tweet: string) => tweet.trim())
+      .map((text: string, index: number) => ({ text, position: index }));
+    twitterContent.tweet_type = 'thread';
+    
+  } else {
+    // Regular tweet
+    twitterContent.tweet_type = 'tweet';
+  }
+
+  basePayload.platform_content = {
+    twitter: twitterContent
+  };
+
+  // Add media information
+  if (mediaFiles.length > 0) {
+    basePayload.media = mediaFiles.map((file: File) => ({
+      filename: file.name,
+      type: file.type.startsWith('image/') ? 'image' : 'video',
+      size: file.size,
+      mimeType: file.type
+    }));
+  }
+
+  console.log('🐦 Twitter Payload Debug:', {
+    selectedPostType,
+    postData,
+    twitterContent,
+    finalPayload: basePayload
+  });
+
+  return basePayload;
+};
 
   const createPost = async (action: 'draft' | 'publish' | 'schedule') => {
     try {
       setLoading(true);
       setError('');
       setSuccess('');
-  
+
+      console.log('🚨 Creating post:', {
+        action,
+        selectedPlatform,
+        selectedPostType,
+        postData
+      });
+
       validatePost();
-  
-      // For Twitter posts, use the Twitter API directly
-      if (selectedPlatform === 'twitter' && action === 'publish') {
-        console.log('🐦 Publishing directly to Twitter API');
-        
-        const twitterPayload = {
-          type: selectedPostType,
-          content: postData.content || '',
-          thread: postData.thread || [],
-          poll: postData.poll
-        };
-  
-        console.log('🚀 Sending to Twitter API:', twitterPayload);
-  
-        // Use Twitter API endpoint directly
-        const result = await apiRequest('/api/twitter/post', {
-          method: 'POST',
-          body: JSON.stringify(twitterPayload)
-        }) as any;
-  
-        if (result.success) {
-          setSuccess('Tweet posted successfully!');
-          // Also save to your database as a published post
-          await savePostToDatabase(action);
-        } else {
-          throw new Error(result.error || 'Failed to post tweet');
-        }
-  
+
+      // Check if we're in mock mode (for testing without backend)
+      const mockMode = localStorage.getItem('mockMode') === 'true';
+      if (mockMode) {
+        console.log('🎭 Mock mode: Simulating post creation');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setSuccess(`Post ${action === 'draft' ? 'saved as draft' : action === 'publish' ? 'published' : 'scheduled'} successfully! (Mock Mode)`);
+        setLoading(false);
+        return;
+      }
+
+      let postPayload: any;
+
+      // Build platform-specific payload
+      if (selectedPlatform === 'twitter') {
+        postPayload = createTwitterPostPayload(postData, selectedPostType, mediaFiles);
       } else {
-        // For other platforms or draft/scheduled posts, use the regular posts API
-        console.log('💾 Saving to database');
+        // Generic payload for other platforms
+        const actualContent = postData.caption || postData.content || postData.title || '';
         
-        const postPayload: any = {
+        postPayload = {
           platform: selectedPlatform,
           post_type: selectedPostType,
-          status: action === 'draft' ? 'draft' : action === 'publish' ? 'published' : 'scheduled',
+          status: 'draft',
           content: {
-            caption: postData.caption || postData.content || '',
-            hashtags: postData.hashtags ? postData.hashtags.split(',').map((h: string) => h.trim()) : [],
-            mentions: postData.mentions ? postData.mentions.split(',').map((m: string) => m.trim()) : []
-          }
+            caption: actualContent.trim(),
+            hashtags: postData.hashtags ? 
+              postData.hashtags.split(',').map((h: string) => h.trim()).filter(Boolean) : [],
+            mentions: postData.mentions ? 
+              postData.mentions.split(',').map((m: string) => m.trim()).filter(Boolean) : []
+          },
+          title: actualContent.trim(),
+          media: mediaFiles.length > 0 ? mediaFiles.map(file => ({
+            filename: file.name,
+            type: file.type,
+            size: file.size
+          })) : []
         };
-  
-        // Add platform-specific content for database storage
+
+        // Add platform-specific content
         if (selectedPlatform === 'youtube') {
-          postPayload.platform_content = {
-            youtube: {
-              title: postData.title,
-              description: postData.description,
-              tags: postData.tags ? postData.tags.split(',').map((t: string) => t.trim()) : [],
-              privacy_status: postData.privacy || 'public'
-            }
-          };
-        } else if (selectedPlatform === 'twitter') {
-          postPayload.platform_content = {
-            twitter: {
-              text: postData.content,
-              thread: postData.thread || [],
-              reply_settings: postData.replySettings || 'everyone',
-              poll: postData.poll ? {
-                options: postData.poll.options || [],
-                duration_minutes: postData.poll.durationMinutes || 1440
-              } : undefined
-            }
+          postPayload.youtube_content = {
+            title: postData.title?.trim() || '',
+            description: postData.description?.trim() || '',
+            tags: postData.tags ? 
+              postData.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : [],
+            privacy_status: postData.privacy || 'public'
           };
         }
-  
-        // Add scheduling if applicable
-        if (postData.scheduledFor) {
-          postPayload.scheduling = {
-            scheduled_for: postData.scheduledFor,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-          };
-        }
-  
-        console.log('💾 Saving to posts database:', postPayload);
-  
-        const response = await apiRequest('/api/posts', {
-          method: 'POST',
-          body: JSON.stringify(postPayload)
-        }) as any;
-  
-        setSuccess(`Post ${action === 'draft' ? 'saved as draft' : action === 'publish' ? 'published' : 'scheduled'} successfully!`);
+        // Add other platform content as needed...
       }
-  
-      // Reset form and reload posts
+
+      // Add scheduling if applicable
+      if (action === 'schedule' && postData.scheduledFor) {
+        postPayload.scheduling = {
+          scheduled_for: new Date(postData.scheduledFor).toISOString(),
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        };
+      }
+
+      console.log('📤 Sending post payload:', JSON.stringify(postPayload, null, 2));
+
+      // Create the post
+      const response = await apiRequest('/api/posts', {
+        method: 'POST',
+        body: JSON.stringify(postPayload)
+      }) as any;
+
+      console.log('✅ Post created successfully:', response);
+
+      const postId = response.post?._id || response.data?.post?._id || response._id;
+      
+      if (!postId) {
+        console.warn('⚠️ No post ID found in response:', response);
+        setSuccess(`Post ${action === 'draft' ? 'saved as draft' : action === 'publish' ? 'published' : 'scheduled'} successfully!`);
+        return;
+      }
+
+      // Try to publish/schedule
+      let publishSuccess = false;
+      
+      try {
+        if (action === 'publish') {
+          await apiRequest(`/api/posts/${postId}/publish`, {
+            method: 'PUT'
+          });
+          console.log('✅ Post published successfully');
+          publishSuccess = true;
+        } else if (action === 'schedule' && postData.scheduledFor) {
+          await apiRequest(`/api/posts/${postId}/schedule`, {
+            method: 'PUT',
+            body: JSON.stringify({
+              scheduled_for: postData.scheduledFor,
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            })
+          });
+          console.log('✅ Post scheduled successfully');
+          publishSuccess = true;
+        }
+      } catch (publishError: any) {
+        console.error('❌ Publish/Schedule failed:', publishError);
+        publishSuccess = false;
+      }
+
+      // Set appropriate success message
+      if (action === 'publish') {
+        if (publishSuccess) {
+          setSuccess('Post created and published successfully!');
+        } else {
+          setSuccess('Post created successfully! (Publish failed - post saved as draft)');
+        }
+      } else if (action === 'schedule') {
+        if (publishSuccess) {
+          setSuccess('Post created and scheduled successfully!');
+        } else {
+          setSuccess('Post created successfully! (Schedule failed - post saved as draft)');
+        }
+      } else {
+        setSuccess('Post saved as draft successfully!');
+      }
+      
+      // Reset form
       setSelectedPlatform('');
       setSelectedPostType('');
       setPostData({});
       setMediaFiles([]);
+      
+      // Reload posts
       loadPosts();
-  
-    } catch (err: any) {
-      console.error('❌ Create post error:', err);
-      setError(err.message || 'Failed to create post');
+
+    } catch (err: unknown) {
+      console.error('❌ Post creation failed:', err);
+      
+      let errorMessage = 'Failed to create post';
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
-    }
-  };
-  
-  // Helper function to save published Twitter posts to database
-  const savePostToDatabase = async (action: 'draft' | 'publish' | 'schedule') => {
-    try {
-      const postPayload = {
-        platform: 'twitter',
-        post_type: selectedPostType,
-        status: 'published', // Since we already published to Twitter
-        content: {
-          caption: postData.content || '',
-          hashtags: postData.hashtags ? postData.hashtags.split(',').map((h: string) => h.trim()) : [],
-          mentions: postData.mentions ? postData.mentions.split(',').map((m: string) => m.trim()) : []
-        },
-        platform_content: {
-          twitter: {
-            text: postData.content,
-            thread: postData.thread || [],
-            reply_settings: postData.replySettings || 'everyone',
-            poll: postData.poll ? {
-              options: postData.poll.options || [],
-              duration_minutes: postData.poll.durationMinutes || 1440
-            } : undefined
-          }
-        },
-        publishing: {
-          published_at: new Date().toISOString()
-        }
-      };
-  
-      await apiRequest('/api/posts', {
-        method: 'POST',
-        body: JSON.stringify(postPayload)
-      });
-  
-      console.log('✅ Twitter post saved to database');
-    } catch (error) {
-      console.error('❌ Failed to save Twitter post to database:', error);
-      // Don't throw error here - the main Twitter post was successful
     }
   };
 
   const renderPlatformFields = () => {
     if (!selectedPlatform || !selectedPostType) return null;
 
-    const config = PLATFORM_CONFIGS[selectedPlatform];
-    if (!config) return null;
+    // Use TwitterPostForm for Twitter
+    if (selectedPlatform === 'twitter') {
+      return (
+        <TwitterPostForm
+          postData={postData}
+          onFieldChange={handleFieldChange}
+          selectedPostType={selectedPostType}
+        />
+      );
+    }
+
+    const config = PLATFORM_CONFIGS[selectedPlatform as keyof typeof PLATFORM_CONFIGS];
     
     return (
       <div className="space-y-6">
         {Object.entries(config.fields).map(([field, fieldConfig]) => {
-          if (fieldConfig.type === 'array' && field === 'thread') {
-            return (
-              <div key={field} className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Thread Tweets {fieldConfig.required && <span className="text-red-500">*</span>}
-                </label>
-                {(postData.thread || ['']).map((tweet: string, index: number) => (
-                  <div key={index} className="flex space-x-2">
-                    <input
-                      type="text"
-                      value={tweet}
-                      onChange={(e) => {
-                        const newThread = [...(postData.thread || [''])];
-                        newThread[index] = e.target.value;
-                        handleFieldChange('thread', newThread);
-                      }}
-                      placeholder={`Tweet ${index + 1}`}
-                      maxLength={280}
-                      className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                    {index > 0 && (
-                      <button
-                        onClick={() => {
-                          const newThread = (postData.thread || []).filter((_: any, i: number) => i !== index);
-                          handleFieldChange('thread', newThread);
-                        }}
-                        className="p-3 text-red-500 hover:text-red-700"
-                      >
-                        <X size={16} />
-                      </button>
-                    )}
-                  </div>
-                ))}
-                <button
-                  onClick={() => {
-                    const newThread = [...(postData.thread || ['']), ''];
-                    handleFieldChange('thread', newThread);
-                  }}
-                  className="flex items-center space-x-2 text-blue-600 hover:text-blue-800"
-                >
-                  <Plus size={16} />
-                  <span>Add Tweet</span>
-                </button>
-              </div>
-            );
-          }
-
-          if (fieldConfig.type === 'textarea') {
+          if ((fieldConfig as any).type === 'textarea') {
             return (
               <div key={field}>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -539,21 +860,21 @@ export default function PostsPage() {
                 <textarea
                   value={postData[field] || ''}
                   onChange={(e) => handleFieldChange(field, e.target.value)}
-                  placeholder={fieldConfig.placeholder}
-                  maxLength={fieldConfig.maxLength}
+                  placeholder={(fieldConfig as any).placeholder}
+                  maxLength={(fieldConfig as any).maxLength}
                   rows={4}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 />
-                {fieldConfig.maxLength && (
+                {(fieldConfig as any).maxLength && (
                   <div className="text-xs text-gray-500 mt-1">
-                    {(postData[field] || '').length}/{fieldConfig.maxLength}
+                    {(postData[field] || '').length}/{(fieldConfig as any).maxLength}
                   </div>
                 )}
               </div>
             );
           }
 
-          if (fieldConfig.options) {
+          if ((fieldConfig as any).options) {
             return (
               <div key={field}>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -561,34 +882,17 @@ export default function PostsPage() {
                   {fieldConfig.required && <span className="text-red-500">*</span>}
                 </label>
                 <select
-                  value={postData[field] || fieldConfig.default || ''}
+                  value={postData[field] || (fieldConfig as any).default || ''}
                   onChange={(e) => handleFieldChange(field, e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select {field}</option>
-                  {fieldConfig.options.map((option: string) => (
+                  {(fieldConfig as any).options.map((option: string) => (
                     <option key={option} value={option}>
                       {option.charAt(0).toUpperCase() + option.slice(1)}
                     </option>
                   ))}
                 </select>
-              </div>
-            );
-          }
-
-          if (fieldConfig.type === 'boolean') {
-            return (
-              <div key={field} className="flex items-center space-x-3">
-                <input
-                  type="checkbox"
-                  id={field}
-                  checked={postData[field] || false}
-                  onChange={(e) => handleFieldChange(field, e.target.checked)}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <label htmlFor={field} className="text-sm font-medium text-gray-700">
-                  {fieldConfig.label || field.charAt(0).toUpperCase() + field.slice(1)}
-                </label>
               </div>
             );
           }
@@ -600,16 +904,16 @@ export default function PostsPage() {
                 {fieldConfig.required && <span className="text-red-500">*</span>}
               </label>
               <input
-                type={fieldConfig.type === 'url' ? 'url' : 'text'}
+                type={(fieldConfig as any).type === 'url' ? 'url' : 'text'}
                 value={postData[field] || ''}
                 onChange={(e) => handleFieldChange(field, e.target.value)}
-                placeholder={fieldConfig.placeholder}
-                maxLength={fieldConfig.maxLength}
+                placeholder={(fieldConfig as any).placeholder}
+                maxLength={(fieldConfig as any).maxLength}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-              {fieldConfig.maxLength && (
+              {(fieldConfig as any).maxLength && (
                 <div className="text-xs text-gray-500 mt-1">
-                  {(postData[field] || '').length}/{fieldConfig.maxLength}
+                  {(postData[field] || '').length}/{(fieldConfig as any).maxLength}
                 </div>
               )}
             </div>
@@ -620,10 +924,10 @@ export default function PostsPage() {
   };
 
   const getPlatformIcon = (platform: string) => {
-    const config = PLATFORM_CONFIGS[platform];
+    const config = PLATFORM_CONFIGS[platform as keyof typeof PLATFORM_CONFIGS];
     if (!config) return null;
     const IconComponent = config.icon;
-    return <IconComponent size={16} />;
+    return <IconComponent size={16} className={`text-${config.color}-600`} />;
   };
 
   return (
@@ -718,13 +1022,12 @@ export default function PostsPage() {
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                       {Object.entries(PLATFORM_CONFIGS).map(([platform, config]) => {
                         const IconComponent = config.icon;
-                        const isSelected = selectedPlatform === platform;
                         return (
                           <button
                             key={platform}
                             onClick={() => handlePlatformSelect(platform)}
                             className={`p-4 rounded-lg border-2 transition-all duration-200 flex flex-col items-center space-y-2 ${
-                              isSelected
+                              selectedPlatform === platform
                                 ? `border-${config.color}-500 bg-${config.color}-50 shadow-md`
                                 : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
                             }`}
@@ -742,7 +1045,7 @@ export default function PostsPage() {
                     <div>
                       <h3 className="text-sm font-medium text-gray-700 mb-3">Post Type</h3>
                       <div className="flex flex-wrap gap-2">
-                        {PLATFORM_CONFIGS[selectedPlatform]?.postTypes.map((type) => (
+                        {PLATFORM_CONFIGS[selectedPlatform as keyof typeof PLATFORM_CONFIGS].postTypes.map((type) => (
                           <button
                             key={type}
                             onClick={() => handlePostTypeSelect(type)}
@@ -766,7 +1069,7 @@ export default function PostsPage() {
                       <label className="block border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer">
                         <Upload size={24} className="mx-auto text-gray-400 mb-2" />
                         <p className="text-gray-600 mb-1">
-                          Upload {PLATFORM_CONFIGS[selectedPlatform]?.supportedMedia.join(' or ')}
+                          Upload {PLATFORM_CONFIGS[selectedPlatform as keyof typeof PLATFORM_CONFIGS].supportedMedia.join(' or ')}
                         </p>
                         <p className="text-xs text-gray-500">
                           {selectedPlatform === 'youtube' && 'Video required for YouTube posts'}
@@ -774,7 +1077,7 @@ export default function PostsPage() {
                         <input
                           type="file"
                           multiple={selectedPlatform !== 'youtube'}
-                          accept={PLATFORM_CONFIGS[selectedPlatform]?.supportedMedia.includes('image') ? 'image/*,video/*' : 'video/*'}
+                          accept={PLATFORM_CONFIGS[selectedPlatform as keyof typeof PLATFORM_CONFIGS].supportedMedia.includes('image') ? 'image/*,video/*' : 'video/*'}
                           className="hidden"
                           onChange={(e) => handleMediaUpload(e.target.files)}
                         />
@@ -797,96 +1100,46 @@ export default function PostsPage() {
                     </div>
                   )}
 
-                  {/* Platform Connection Status */}
-                  {selectedPlatform && (selectedPlatform === 'youtube' || selectedPlatform === 'twitter') && (
-                    <div className="space-y-3">
-                      {/* YouTube Connection Status */}
-                      {selectedPlatform === 'youtube' && (
-                        <>
-                          {checkingConnection && (
-                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                              <div className="flex items-center space-x-3">
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                                <span className="text-sm text-blue-700">Checking YouTube connection...</span>
-                              </div>
-                            </div>
-                          )}
-                          {!checkingConnection && !youtubeConnected && (
-                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                              <div className="flex items-start space-x-3">
-                                <div className="flex-shrink-0">
-                                  <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                  </svg>
-                                </div>
-                                <div>
-                                  <h3 className="text-sm font-medium text-yellow-800">YouTube Not Connected</h3>
-                                  <p className="text-sm text-yellow-700 mt-1">
-                                    You need to connect your YouTube account before you can post videos. 
-                                    <a href="/creator/settings" className="font-medium underline hover:text-yellow-900 ml-1">
-                                      Go to Settings to connect YouTube
-                                    </a>
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                          {!checkingConnection && youtubeConnected && (
-                            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                              <div className="flex items-center space-x-3">
-                                <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                                <span className="text-sm text-green-700">YouTube account connected successfully!</span>
-                              </div>
-                            </div>
-                          )}
-                        </>
-                      )}
+                  {/* YouTube Connection Warning */}
+                  {selectedPlatform === 'youtube' && !youtubeConnected && !checkingConnection && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <div className="flex items-start space-x-3">
+                        <div className="flex-shrink-0">
+                          <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-medium text-yellow-800">YouTube Not Connected</h3>
+                          <p className="text-sm text-yellow-700 mt-1">
+                            You need to connect your YouTube account before you can post videos. 
+                            <a href="/creator/settings" className="font-medium underline hover:text-yellow-900 ml-1">
+                              Go to Settings to connect YouTube
+                            </a>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
-                      {/* Twitter Connection Status */}
-                      {selectedPlatform === 'twitter' && (
-                        <>
-                          {checkingConnection && (
-                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                              <div className="flex items-center space-x-3">
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                                <span className="text-sm text-blue-700">Checking Twitter connection...</span>
-                              </div>
-                            </div>
-                          )}
-                          {!checkingConnection && !twitterConnected && (
-                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                              <div className="flex items-start space-x-3">
-                                <div className="flex-shrink-0">
-                                  <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                  </svg>
-                                </div>
-                                <div>
-                                  <h3 className="text-sm font-medium text-yellow-800">Twitter Not Connected</h3>
-                                  <p className="text-sm text-yellow-700 mt-1">
-                                    You need to connect your Twitter account before you can post. 
-                                    <a href="/creator/settings" className="font-medium underline hover:text-yellow-900 ml-1">
-                                      Go to Settings to connect Twitter
-                                    </a>
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                          {!checkingConnection && twitterConnected && (
-                            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                              <div className="flex items-center space-x-3">
-                                <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                                <span className="text-sm text-green-700">Twitter account connected successfully!</span>
-                              </div>
-                            </div>
-                          )}
-                        </>
-                      )}
+                  {/* YouTube Connection Status */}
+                  {selectedPlatform === 'youtube' && checkingConnection && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                        <span className="text-sm text-blue-700">Checking YouTube connection...</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedPlatform === 'youtube' && youtubeConnected && !checkingConnection && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex items-center space-x-3">
+                        <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-sm text-green-700">YouTube account connected successfully!</span>
+                      </div>
                     </div>
                   )}
 
@@ -927,11 +1180,29 @@ export default function PostsPage() {
                   {selectedPlatform && selectedPostType && (
                     <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200">
                       <button
+                        onClick={() => testApiConnection()}
+                        className="flex items-center space-x-2 px-4 py-2 border border-yellow-300 text-yellow-700 rounded-lg hover:bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors"
+                      >
+                        <span>🧪 Test API</span>
+                      </button>
+                      
+                      <button
+                        onClick={() => testMinimalPost()}
+                        className="flex items-center space-x-2 px-4 py-2 border border-orange-300 text-orange-700 rounded-lg hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors"
+                      >
+                        <span>🧪 Test Minimal Post</span>
+                      </button>
+                      
+                      <button
+                        onClick={() => debugFormData()}
+                        className="flex items-center space-x-2 px-4 py-2 border border-green-300 text-green-700 rounded-lg hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+                      >
+                        <span>🔍 Debug Form</span>
+                      </button>
+                      
+                      <button
                         onClick={() => createPost('draft')}
-                        disabled={loading || 
-                          (selectedPlatform === 'youtube' && !youtubeConnected) ||
-                          (selectedPlatform === 'twitter' && !twitterConnected)
-                        }
+                        disabled={loading || (selectedPlatform === 'youtube' && !youtubeConnected)}
                         className="flex items-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <Save size={16} />
@@ -941,10 +1212,7 @@ export default function PostsPage() {
                       {postData.scheduledFor ? (
                         <button
                           onClick={() => createPost('schedule')}
-                          disabled={loading || 
-                            (selectedPlatform === 'youtube' && !youtubeConnected) ||
-                            (selectedPlatform === 'twitter' && !twitterConnected)
-                          }
+                          disabled={loading || (selectedPlatform === 'youtube' && !youtubeConnected)}
                           className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <Clock size={16} />
@@ -953,10 +1221,7 @@ export default function PostsPage() {
                       ) : (
                         <button
                           onClick={() => createPost('publish')}
-                          disabled={loading || 
-                            (selectedPlatform === 'youtube' && !youtubeConnected) ||
-                            (selectedPlatform === 'twitter' && !twitterConnected)
-                          }
+                          disabled={loading || (selectedPlatform === 'youtube' && !youtubeConnected)}
                           className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <Send size={16} />
@@ -964,13 +1229,12 @@ export default function PostsPage() {
                         </button>
                       )}
                       
-                      {((selectedPlatform === 'youtube' && !youtubeConnected) || 
-                       (selectedPlatform === 'twitter' && !twitterConnected)) && (
+                      {selectedPlatform === 'youtube' && !youtubeConnected && (
                         <p className="text-sm text-gray-500 flex items-center">
                           <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                           </svg>
-                          Connect {selectedPlatform === 'youtube' ? 'YouTube' : selectedPlatform === 'twitter' ? 'Twitter' : selectedPlatform} to enable posting
+                          Connect YouTube to enable posting
                         </p>
                       )}
                     </div>
@@ -1126,4 +1390,4 @@ export default function PostsPage() {
       </div>
     </div>
   );
-}
+};

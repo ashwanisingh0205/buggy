@@ -41,15 +41,19 @@ const SidebarItem = React.memo(({
   return (
     <Link
       href={item.href}
-      className={`flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 cursor-pointer transition-colors ${
+      className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-blue-600 cursor-pointer transition-all duration-200 rounded-xl mx-2 ${
         isActive
-          ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600'
-          : ''
+          ? 'bg-gradient-to-r from-blue-50 to-purple-50 text-blue-600 shadow-sm border border-blue-200/50'
+          : 'hover:shadow-sm'
       }`}
       onClick={handleClick}
     >
-      <item.icon className="w-5 h-5 mr-3" />
-      <span>{item.name}</span>
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center mr-3 transition-colors ${
+        isActive ? 'bg-gradient-to-r from-blue-500 to-purple-500' : 'bg-gray-100'
+      }`}>
+        <item.icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-gray-600'}`} />
+      </div>
+      <span className="font-medium">{item.name}</span>
     </Link>
   );
 });
@@ -61,16 +65,16 @@ const UserInfo = React.memo(({ user }: { user: Record<string, unknown> | null })
   if (!user) return null;
 
   return (
-    <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-      <div className="flex items-center">
-        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-          <User className="w-4 h-4 text-blue-600" />
+    <div className="p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-sm">
+      <div className="flex items-center space-x-3">
+        <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+          <User className="w-5 h-5 text-white" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900 truncate">
+          <p className="text-sm font-semibold text-gray-900 truncate">
             {(user.name as string) || (user.email as string) || 'User'}
           </p>
-          <p className="text-xs text-gray-500 capitalize">
+          <p className="text-xs text-gray-500 capitalize font-medium">
             {(user.role as string) || 'Creator'}
           </p>
         </div>
@@ -96,31 +100,76 @@ const Sidebar = React.memo(() => {
     console.log('Sidebar item clicked:', name);
   }, []);
 
+  // Helper function to determine if a sidebar item is active
+  const isItemActive = useCallback((item: typeof sidebarItems[0]) => {
+    console.log(`🔍 Checking: ${item.name}`, { pathname, href: item.href });
+    
+    // Normalize pathname by removing trailing slashes and query params
+    const normalizedPathname = pathname.replace(/\/$/, '').split('?')[0];
+    const normalizedHref = item.href.replace(/\/$/, '');
+    
+    // Special case for Overview - only active on exact match
+    if (normalizedHref === '/creator') {
+      const isActive = normalizedPathname === '/creator';
+      console.log(`${isActive ? '✅' : '❌'} Overview check:`, { 
+        normalizedPathname, 
+        normalizedHref, 
+        isActive 
+      });
+      return isActive;
+    }
+    
+    // For all other routes, check if pathname starts with the href
+    const isActive = normalizedPathname.startsWith(normalizedHref);
+    console.log(`${isActive ? '✅' : '❌'} Other route check:`, { 
+      normalizedPathname, 
+      normalizedHref, 
+      isActive 
+    });
+    return isActive;
+  }, [pathname]);
+
   // Memoized sidebar items
   const sidebarItemsList = useMemo(() => 
     sidebarItems.map((item) => (
       <SidebarItem
         key={item.name}
         item={item}
-        isActive={pathname.startsWith(item.href)}
+        isActive={isItemActive(item)}
         onItemClick={handleItemClick}
       />
-    )), [pathname, handleItemClick]);
+    )), [isItemActive, handleItemClick]);
 
   return (
-    <div className="w-64 bg-white shadow-lg flex flex-col h-full">
-      <div className="p-6">
-        <h1 className="text-2xl font-bold text-blue-600">Bloocube</h1>
+    <div className="w-64 bg-white/90 backdrop-blur-sm shadow-xl border-r border-gray-200/50 flex flex-col h-full">
+      {/* Logo Section */}
+      <div className="p-6 border-b border-gray-200/50">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+            <span className="text-white font-bold text-lg">B</span>
+          </div>
+          <div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Bloocube</h1>
+            <p className="text-xs text-gray-500">Creator Platform</p>
+          </div>
+        </div>
+        {/* Debug info */}
+       
       </div>
       
-      <nav className="mt-6 flex-1">
-        {sidebarItemsList}
-        <Logout className="w-full justify-center bg-black" />
+      {/* Navigation */}
+      <nav className="mt-6 flex-1 px-3">
+        <div className="space-y-1">
+          {sidebarItemsList}
+        </div>
       </nav>
       
       {/* User info and logout section at the bottom */}
-      <div className="p-6 border-t border-gray-200">
+      <div className="p-4 border-t border-gray-200/50 bg-gray-50/50">
         <UserInfo user={user} />
+        <div className="mt-3">
+          <Logout className="w-full justify-center flex bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-sm" />
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { Search, Filter, Users, Star, MapPin, Eye, MessageCircle, Plus, Zap, ChevronDown, Check } from 'lucide-react';
+import { Search, Filter, Users, Star, MapPin, Eye, MessageCircle, Plus, Zap, ChevronDownIcon, CheckIcon } from 'lucide-react';
 
 interface Creator {
   id: string;
@@ -317,7 +317,7 @@ export default function BrandMarketplacePage() {
                   <span className="text-gray-700">
                     {platformOptions.find(opt => opt.value === selectedPlatform)?.icon} {platformOptions.find(opt => opt.value === selectedPlatform)?.label}
                   </span>
-                  <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isPlatformDropdownOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform ${isPlatformDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 
                 {isPlatformDropdownOpen && (
@@ -335,7 +335,7 @@ export default function BrandMarketplacePage() {
                           <span>{option.icon}</span>
                           <span className="text-sm text-gray-700">{option.label}</span>
                           {selectedPlatform === option.value && (
-                            <Check className="w-4 h-4 text-blue-600 ml-auto" />
+                            <CheckIcon className="w-4 h-4 text-blue-600 ml-auto" />
                           )}
                         </button>
                       ))}
@@ -354,7 +354,7 @@ export default function BrandMarketplacePage() {
                   <span className="text-gray-700">
                     {categoryOptions.find(opt => opt.value === selectedCategory)?.icon} {categoryOptions.find(opt => opt.value === selectedCategory)?.label}
                   </span>
-                  <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 
                 {isCategoryDropdownOpen && (
@@ -372,7 +372,7 @@ export default function BrandMarketplacePage() {
                           <span>{option.icon}</span>
                           <span className="text-sm text-gray-700">{option.label}</span>
                           {selectedCategory === option.value && (
-                            <Check className="w-4 h-4 text-blue-600 ml-auto" />
+                            <CheckIcon className="w-4 h-4 text-blue-600 ml-auto" />
                           )}
                         </button>
                       ))}
@@ -391,7 +391,7 @@ export default function BrandMarketplacePage() {
                   <span className="text-gray-700">
                     {sortOptions.find(opt => opt.value === sortBy)?.icon} {sortOptions.find(opt => opt.value === sortBy)?.label}
                   </span>
-                  <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isSortDropdownOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform ${isSortDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 
                 {isSortDropdownOpen && (
@@ -409,7 +409,7 @@ export default function BrandMarketplacePage() {
                           <span>{option.icon}</span>
                           <span className="text-sm text-gray-700">{option.label}</span>
                           {sortBy === option.value && (
-                            <Check className="w-4 h-4 text-blue-600 ml-auto" />
+                            <CheckIcon className="w-4 h-4 text-blue-600 ml-auto" />
                           )}
                         </button>
                       ))}

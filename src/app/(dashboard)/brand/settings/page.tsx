@@ -1,15 +1,15 @@
 "use client";
 import { useState } from 'react';
 import { 
-  User, 
-  Building, 
-  Bell, 
-  Shield, 
-  CreditCard,
-  Globe,
-  Key,
-  Trash
-} from 'lucide-react';
+  UserIcon, 
+  BuildingOfficeIcon, 
+  BellIcon, 
+  ShieldCheckIcon, 
+  CreditCardIcon,
+  GlobeAltIcon,
+  KeyIcon,
+  TrashIcon
+} from '@heroicons/react/24/outline';
 
 export default function BrandSettingsPage() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -29,12 +29,12 @@ export default function BrandSettingsPage() {
   });
 
   const tabs = [
-    { id: 'profile', name: 'Profile', icon: User },
-    { id: 'company', name: 'Company', icon: Building },
-    { id: 'notifications', name: 'Notifications', icon: Bell },
-    { id: 'security', name: 'Security', icon: Shield },
-    { id: 'billing', name: 'Billing', icon: CreditCard },
-    { id: 'integrations', name: 'Integrations', icon: Globe }
+    { id: 'profile', name: 'Profile', icon: UserIcon },
+    { id: 'company', name: 'Company', icon: BuildingOfficeIcon },
+    { id: 'notifications', name: 'Notifications', icon: BellIcon },
+    { id: 'security', name: 'Security', icon: ShieldCheckIcon },
+    { id: 'billing', name: 'Billing', icon: CreditCardIcon },
+    { id: 'integrations', name: 'Integrations', icon: GlobeAltIcon }
   ];
 
   const handleInputChange = (field: string, value: any) => {
@@ -59,7 +59,7 @@ export default function BrandSettingsPage() {
       <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8">
         <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
           <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
-            <User className="w-6 h-6 text-white" />
+            <UserIcon className="w-6 h-6 text-white" />
           </div>
           Profile Information
         </h3>
@@ -125,7 +125,7 @@ export default function BrandSettingsPage() {
       <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-2xl p-8">
         <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
           <div className="p-2 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg">
-            <Building className="w-6 h-6 text-white" />
+            <BuildingOfficeIcon className="w-6 h-6 text-white" />
           </div>
           Company Details
         </h3>
@@ -151,7 +151,7 @@ export default function BrandSettingsPage() {
       <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-8">
         <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
           <div className="p-2 bg-gradient-to-r from-orange-500 to-red-600 rounded-lg">
-            <Bell className="w-6 h-6 text-white" />
+            <BellIcon className="w-6 h-6 text-white" />
           </div>
           Notification Preferences
         </h3>
@@ -189,7 +189,7 @@ export default function BrandSettingsPage() {
       <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-8">
         <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
           <div className="p-2 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg">
-            <Shield className="w-6 h-6 text-white" />
+            <ShieldCheckIcon className="w-6 h-6 text-white" />
           </div>
           Security Settings
         </h3>
@@ -198,7 +198,7 @@ export default function BrandSettingsPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-blue-100 rounded-lg">
-                  <Key className="w-6 h-6 text-blue-600" />
+                  <KeyIcon className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900 text-lg">Change Password</h4>
@@ -214,7 +214,7 @@ export default function BrandSettingsPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-green-100 rounded-lg">
-                  <Shield className="w-6 h-6 text-green-600" />
+                  <ShieldCheckIcon className="w-6 h-6 text-green-600" />
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900 text-lg">Two-Factor Authentication</h4>
@@ -230,7 +230,7 @@ export default function BrandSettingsPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-gray-100 rounded-lg">
-                  <Key className="w-6 h-6 text-gray-600" />
+                  <KeyIcon className="w-6 h-6 text-gray-600" />
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900 text-lg">API Keys</h4>
@@ -252,7 +252,7 @@ export default function BrandSettingsPage() {
       <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-8">
         <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
           <div className="p-2 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg">
-            <CreditCard className="w-6 h-6 text-white" />
+            <CreditCardIcon className="w-6 h-6 text-white" />
           </div>
           Billing Information
         </h3>
@@ -260,7 +260,7 @@ export default function BrandSettingsPage() {
           <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200">
             <div className="flex items-center gap-4 mb-4">
               <div className="p-3 bg-blue-100 rounded-lg">
-                <CreditCard className="w-6 h-6 text-blue-600" />
+                <CreditCardIcon className="w-6 h-6 text-blue-600" />
               </div>
               <h4 className="font-semibold text-gray-900 text-lg">Current Plan</h4>
             </div>
@@ -270,7 +270,7 @@ export default function BrandSettingsPage() {
           <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200">
             <div className="flex items-center gap-4 mb-4">
               <div className="p-3 bg-green-100 rounded-lg">
-                <CreditCard className="w-6 h-6 text-green-600" />
+                <CreditCardIcon className="w-6 h-6 text-green-600" />
               </div>
               <h4 className="font-semibold text-gray-900 text-lg">Next Billing</h4>
             </div>
@@ -295,7 +295,7 @@ export default function BrandSettingsPage() {
       <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl p-8">
         <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
           <div className="p-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg">
-            <Globe className="w-6 h-6 text-white" />
+            <GlobeAltIcon className="w-6 h-6 text-white" />
           </div>
           Integrations
         </h3>
@@ -304,7 +304,7 @@ export default function BrandSettingsPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-blue-100 rounded-lg">
-                  <Globe className="w-6 h-6 text-blue-600" />
+                  <GlobeAltIcon className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900 text-lg">Google Analytics</h4>
@@ -320,7 +320,7 @@ export default function BrandSettingsPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-green-100 rounded-lg">
-                  <Key className="w-6 h-6 text-green-600" />
+                  <KeyIcon className="w-6 h-6 text-green-600" />
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900 text-lg">Social Media APIs</h4>
@@ -396,7 +396,7 @@ export default function BrandSettingsPage() {
             <div className="mt-10 pt-8 border-t border-gray-200">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <button className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105">
-                  <Trash className="w-4 h-4" />
+                  <TrashIcon className="w-4 h-4" />
                   Delete Account
                 </button>
                 <div className="flex gap-4">

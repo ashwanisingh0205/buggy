@@ -104,6 +104,8 @@ export async function apiRequest<T = unknown>(path: string, init: RequestInit = 
     tokenLength: token?.length || 0,
     retries,
     cached: false,
+    baseUrl: base,
+    fullUrl: `${base}${path}`,
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {})
@@ -153,15 +155,33 @@ export async function apiRequest<T = unknown>(path: string, init: RequestInit = 
       }
 
       if (!res.ok) {
-        const body = (await res.json().catch(() => null)) as { error?: string; message?: string; code?: string } | null;
+        let body: any = null;
+        try {
+          body = await res.json();
+        } catch (e) {
+          console.log(`❌ Failed to parse error response as JSON:`, e);
+          body = { message: `HTTP ${res.status} ${res.statusText}` };
+        }
+        
         const baseMessage = (body?.error || body?.message);
         const message = res.status === 403 ? (baseMessage || 'Permission denied') : (baseMessage || `HTTP ${res.status}`);
         
         console.log(`❌ API Error: ${res.status} ${res.statusText}`, {
           path,
           message,
-          code: body?.code
+          code: body?.code,
+          details: body?.details,
+          validationErrors: body?.validation_errors || body?.errors || body?.validation,
+          fullResponse: body,
+          responseText: await res.text().catch(() => 'Could not read response text')
         });
+        
+        // For validation errors, include more details
+        if (res.status === 400 && body?.validation_errors) {
+          throw new Error(`Validation failed: ${JSON.stringify(body.validation_errors)}`);
+        } else if (res.status === 400 && body?.errors) {
+          throw new Error(`Validation failed: ${JSON.stringify(body.errors)}`);
+        }
         
         throw new Error(message);
       }

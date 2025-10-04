@@ -5,7 +5,7 @@ import type { Campaign } from '@/types/campaign';
 import { acceptBidApi, rejectBidApi } from '@/hooks/useBids';
 import { campaignService } from '@/lib/campaignService';
 import { authUtils } from '@/lib/auth';
-import { ChevronDown, Plus, Eye, X, Check } from 'lucide-react';
+import { ChevronDownIcon, PlusIcon, EyeIcon, XMarkIcon, CheckIcon } from '@heroicons/react/24/outline';
 
 type PlatformType = "instagram" | "youtube" | "twitter" | "linkedin" | "facebook";
 
@@ -180,7 +180,7 @@ export default function BrandCampaignsPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 bg-blue-100 rounded-lg">
-              <Plus className="h-5 w-5 text-blue-600" />
+              <PlusIcon className="h-5 w-5 text-blue-600" />
             </div>
             <h2 className="text-xl font-semibold text-gray-900">Launch Your Next Campaign</h2>
           </div>
@@ -269,7 +269,7 @@ export default function BrandCampaignsPage() {
                       : 'Choose your target social media platforms'
                     }
                   </span>
-                  <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDownIcon className={`h-5 w-5 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 
                 {isDropdownOpen && (
@@ -307,7 +307,7 @@ export default function BrandCampaignsPage() {
                           onClick={() => togglePlatform(platform as PlatformType)}
                           className="ml-1 hover:bg-blue-200 rounded-full p-0.5"
                         >
-                          <X className="h-3 w-3" />
+                          <XMarkIcon className="h-3 w-3" />
                         </button>
                       </span>
                     );
@@ -402,7 +402,7 @@ export default function BrandCampaignsPage() {
                 </>
               ) : (
                 <>
-                  <Plus className="h-4 w-4" />
+                  <PlusIcon className="h-4 w-4" />
                   Create Campaign
                 </>
               )}
@@ -510,7 +510,7 @@ export default function BrandCampaignsPage() {
                       }`} 
                       onClick={() => setSelectedCampaignId(prev => prev === c._id ? null : c._id)}
                     >
-                      <Eye className="h-4 w-4" />
+                      <EyeIcon className="h-4 w-4" />
                       View Proposals
                     </button>
                     <div className="text-xs text-gray-500">
@@ -537,7 +537,7 @@ export default function BrandCampaignsPage() {
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 onClick={() => setSelectedCampaignId(null)}
               >
-                <X className="h-6 w-6 text-gray-500" />
+                <XMarkIcon className="h-6 w-6 text-gray-500" />
               </button>
             </div>
             
@@ -605,14 +605,14 @@ export default function BrandCampaignsPage() {
                             className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
                             onClick={() => onAccept(selectedCampaignId, b._id)}
                           >
-                            <Check className="h-4 w-4" />
+                            <CheckIcon className="h-4 w-4" />
                             Accept
                           </button>
                           <button 
                             className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
                             onClick={() => onReject(selectedCampaignId, b._id)}
                           >
-                            <X className="h-4 w-4" />
+                            <XMarkIcon className="h-4 w-4" />
                             Reject
                           </button>
                         </div>

@@ -1,15 +1,15 @@
 "use client";
 import { useState } from 'react';
 import { 
-  BarChart3, 
-  TrendingUp, 
-  Eye,
-  Heart,
-  DollarSign,
-  Users,
-  ArrowUp,
-  ArrowDown
-} from 'lucide-react';
+  ChartBarIcon, 
+  TrendingUpIcon, 
+  EyeIcon,
+  HeartIcon,
+  CurrencyDollarIcon,
+  UsersIcon,
+  ArrowUpIcon,
+  ArrowDownIcon
+} from '@heroicons/react/24/outline';
 
 export default function BrandAnalyticsPage() {
   const [timeRange, setTimeRange] = useState('30d');
@@ -36,7 +36,7 @@ export default function BrandAnalyticsPage() {
       value: '24',
       change: '+12%',
       changeType: 'positive',
-      icon: BarChart3,
+      icon: ChartBarIcon,
       color: 'blue'
     },
     {
@@ -44,7 +44,7 @@ export default function BrandAnalyticsPage() {
       value: '8',
       change: '+2',
       changeType: 'positive',
-      icon: TrendingUp,
+      icon: TrendingUpIcon,
       color: 'green'
     },
     {
@@ -52,7 +52,7 @@ export default function BrandAnalyticsPage() {
       value: '2.4M',
       change: '+18%',
       changeType: 'positive',
-      icon: Eye,
+      icon: EyeIcon,
       color: 'purple'
     },
     {
@@ -60,7 +60,7 @@ export default function BrandAnalyticsPage() {
       value: '156K',
       change: '+8%',
       changeType: 'positive',
-      icon: Heart,
+      icon: HeartIcon,
       color: 'pink'
     },
     {
@@ -68,7 +68,7 @@ export default function BrandAnalyticsPage() {
       value: '₹2.4L',
       change: '+15%',
       changeType: 'positive',
-      icon: DollarSign,
+      icon: CurrencyDollarIcon,
       color: 'yellow'
     },
     {
@@ -76,7 +76,7 @@ export default function BrandAnalyticsPage() {
       value: '45',
       change: '+5',
       changeType: 'positive',
-      icon: Users,
+      icon: UsersIcon,
       color: 'indigo'
     }
   ];
@@ -165,9 +165,9 @@ export default function BrandAnalyticsPage() {
                 <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
                 <div className="flex items-center gap-1 mt-2">
                   {stat.changeType === 'positive' ? (
-                    <ArrowUp className="w-4 h-4 text-green-600" />
+                    <ArrowUpIcon className="w-4 h-4 text-green-600" />
                   ) : (
-                    <ArrowDown className="w-4 h-4 text-red-600" />
+                    <ArrowDownIcon className="w-4 h-4 text-red-600" />
                   )}
                   <span className={`text-sm font-medium ${
                     stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
@@ -191,8 +191,8 @@ export default function BrandAnalyticsPage() {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Campaign Performance</h3>
           <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
             <div className="text-center">
-              <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-black">Chart coming soon</p>
+              <ChartBarIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+              <p className="text-sm text-gray-500">Chart coming soon</p>
             </div>
           </div>
         </div>
@@ -201,8 +201,8 @@ export default function BrandAnalyticsPage() {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Engagement Trends</h3>
           <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
             <div className="text-center">
-              <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-black">Chart coming soon</p>
+              <TrendingUpIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+              <p className="text-sm text-gray-500">Chart coming soon</p>
             </div>
           </div>
         </div>
@@ -292,7 +292,7 @@ export default function BrandAnalyticsPage() {
               <p className="text-sm text-green-600 mt-1">+15% from last month</p>
             </div>
             <div className="p-3 bg-green-100 rounded-lg">
-              <DollarSign className="w-6 h-6 text-green-600" />
+              <CurrencyDollarIcon className="w-6 h-6 text-green-600" />
             </div>
           </div>
         </div>
@@ -305,7 +305,7 @@ export default function BrandAnalyticsPage() {
               <p className="text-sm text-green-600 mt-1">+8% from last month</p>
             </div>
             <div className="p-3 bg-blue-100 rounded-lg">
-              <TrendingUp className="w-6 h-6 text-blue-600" />
+              <TrendingUpIcon className="w-6 h-6 text-blue-600" />
             </div>
           </div>
         </div>
@@ -318,7 +318,7 @@ export default function BrandAnalyticsPage() {
               <p className="text-sm text-green-600 mt-1">+12% from last month</p>
             </div>
             <div className="p-3 bg-purple-100 rounded-lg">
-              <BarChart3 className="w-6 h-6 text-purple-600" />
+              <ChartBarIcon className="w-6 h-6 text-purple-600" />
             </div>
           </div>
         </div>
@@ -328,8 +328,8 @@ export default function BrandAnalyticsPage() {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue Trends</h3>
         <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
           <div className="text-center">
-            <DollarSign className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-            <p className="text-sm text-black">Revenue chart coming soon</p>
+            <CurrencyDollarIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+            <p className="text-sm text-gray-500">Revenue chart coming soon</p>
           </div>
         </div>
       </div>

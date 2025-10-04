@@ -250,40 +250,109 @@ const CompetitorAnalysisPage = () => {
                       placeholder="Search competitors..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:border-gray-400 transition-colors duration-200 min-w-[300px]"
                     />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Filters Section */}
-            <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
-              <div className="flex items-center space-x-4">
-                <Filter className="w-5 h-5 text-gray-500" />
-                <span className="text-sm font-medium text-gray-700">Filters:</span>
-                <select 
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                  value={selectedPlatform} 
-                  onChange={(e) => setSelectedPlatform(e.target.value)}
-                >
-                  <option value="all">All Platforms</option>
-                  <option value="youtube">YouTube</option>
-                  <option value="instagram">Instagram</option>
-                  <option value="twitter">Twitter</option>
-                </select>
-                <select 
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                  value={selectedCategory} 
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                >
-                  <option value="all">All Categories</option>
-                  <option value="technology">Technology</option>
-                  <option value="fashion">Fashion</option>
-                  <option value="fitness">Fitness</option>
-                  <option value="food">Food</option>
-                  <option value="travel">Travel</option>
-                </select>
+            {/* Enhanced Filters Section */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/50 p-6 mb-8 hover:shadow-md transition-all duration-200">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-600 rounded-xl flex items-center justify-center">
+                    <Filter className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">Filter Competitors</h3>
+                    <p className="text-sm text-gray-500">Refine your analysis to focus on relevant competitors</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-500">{filteredCompetitors.length} competitors found</span>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Platform</label>
+                  <select 
+                    className="w-full border text-black border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:border-gray-400 transition-colors duration-200" 
+                    value={selectedPlatform} 
+                    onChange={(e) => setSelectedPlatform(e.target.value)}
+                  >
+                    <option value="all">All Platforms</option>
+                    <option value="youtube">🎥 YouTube</option>
+                    <option value="instagram">📸 Instagram</option>
+                    <option value="twitter">🐦 Twitter</option>
+                    <option value="linkedin">💼 LinkedIn</option>
+                    <option value="tiktok">🎵 TikTok</option>
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Category</label>
+                  <select 
+                    className="w-full border text-black border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:border-gray-400 transition-colors duration-200" 
+                    value={selectedCategory} 
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                  >
+                    <option value="all">All Categories</option>
+                    <option value="technology">💻 Technology</option>
+                    <option value="fashion">👗 Fashion</option>
+                    <option value="fitness">💪 Fitness</option>
+                    <option value="food">🍕 Food</option>
+                    <option value="travel">✈️ Travel</option>
+                    <option value="beauty">💄 Beauty</option>
+                    <option value="gaming">🎮 Gaming</option>
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Follower Range</label>
+                  <select 
+                    className="w-full border text-black border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:border-gray-400 transition-colors duration-200"
+                    defaultValue=""
+                  >
+                    <option value="">Any Size</option>
+                    <option value="micro">📱 Micro (1K-100K)</option>
+                    <option value="mid">📊 Mid-tier (100K-1M)</option>
+                    <option value="macro">🌟 Macro (1M+)</option>
+                    <option value="mega">⭐ Mega (10M+)</option>
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Engagement Level</label>
+                  <select 
+                    className="w-full border text-black border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:border-gray-400 transition-colors duration-200"
+                    defaultValue=""
+                  >
+                    <option value="">Any Level</option>
+                    <option value="high">🔥 High (7%+)</option>
+                    <option value="medium">📈 Medium (4-7%)</option>
+                    <option value="low">📉 Low (&lt;4%)</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-gray-500">Quick filters:</span>
+                  <button className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors duration-200">
+                    High Engagement
+                  </button>
+                  <button className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors duration-200">
+                    Verified Only
+                  </button>
+                  <button className="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-colors duration-200">
+                    Fast Growing
+                  </button>
+                </div>
+                <button className="text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200">
+                  Clear all filters
+                </button>
               </div>
             </div>
 

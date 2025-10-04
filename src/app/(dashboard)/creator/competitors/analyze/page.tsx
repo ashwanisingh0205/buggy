@@ -221,8 +221,8 @@ const CompetitorAnalysisPage = () => {
                                 competitor.url && !competitor.isValid 
                                   ? 'border-red-300 bg-red-50' 
                                   : competitor.isValid 
-                                    ? 'border-green-300 bg-green-50' 
-                                    : 'border-gray-300'
+                                    ? 'border-green-300 border bg-green-50' 
+                                    : 'border-gray-300 border'
                               }`}
                             />
                             {competitor.isValid && (
@@ -396,7 +396,7 @@ const CompetitorAnalysisPage = () => {
                         <div className="flex items-center justify-between mb-2">
                           <div>
                             <h4 className="font-semibold">@{competitor.username}</h4>
-                            <div className="text-sm text-gray-600">{competitor.platform}</div>
+                            <div className="text-sm text-black text-gray-600">{competitor.platform}</div>
                           </div>
                           <div className="text-right">
                             <div className="text-lg font-bold">{competitor.key_metrics.followers.toLocaleString()}</div>

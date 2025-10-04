@@ -1,5 +1,4 @@
-import { config } from './config';
-import { authUtils } from './auth';
+// LinkedIn service for handling OAuth flow and profile data
 
 export interface LinkedInUser {
   id: string;
@@ -23,20 +22,18 @@ export interface LinkedInProfileResponse {
 }
 
 class LinkedInService {
-  private baseURL: string;
+  private readonly baseURL: string;
 
   constructor() {
-    this.baseURL = config.apiUrl;
+    // Use relative URLs for Next.js API routes
+    this.baseURL = '';
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const token = authUtils.getToken();
-    if (!token) throw new Error('Authentication required');
     const response = await fetch(`${this.baseURL}${endpoint}`, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
         ...options.headers,
       },
     });

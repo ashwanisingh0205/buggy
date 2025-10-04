@@ -174,7 +174,7 @@ function SettingsPageContent() {
   }, [tokenPresent, searchParams]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex">
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
@@ -193,30 +193,39 @@ function SettingsPageContent() {
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         {/* Mobile Header */}
-        <div className="md:hidden bg-white shadow-sm border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <div className="md:hidden bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200/50 px-4 py-3 flex items-center justify-between">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 transition-colors"
           >
             <Menu size={20} />
           </button>
-          <h1 className="text-lg font-semibold text-gray-900">Settings</h1>
+          <h1 className="text-lg font-bold text-gray-900">Settings</h1>
           <div className="w-8"></div> {/* Spacer for centering */}
         </div>
 
         <div className="p-4 md:p-6">
           {/* Notification Banner */}
           {notification.type && (
-            <div className={`mb-4 p-4 rounded-lg ${
+            <div className={`mb-6 p-4 rounded-2xl backdrop-blur-sm border ${
               notification.type === 'success' 
-                ? 'bg-green-50 border border-green-200 text-green-800' 
-                : 'bg-red-50 border border-red-200 text-red-800'
+                ? 'bg-green-50/80 border-green-200/50 text-green-800 shadow-sm' 
+                : 'bg-red-50/80 border-red-200/50 text-red-800 shadow-sm'
             }`}>
               <div className="flex items-center justify-between">
-                <span className="font-medium">{notification.message}</span>
+                <div className="flex items-center space-x-3">
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                    notification.type === 'success' ? 'bg-green-100' : 'bg-red-100'
+                  }`}>
+                    <span className={`text-sm ${notification.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+                      {notification.type === 'success' ? '✓' : '!'}
+                    </span>
+                  </div>
+                  <span className="font-semibold">{notification.message}</span>
+                </div>
                 <button
                   onClick={() => setNotification({ type: null, message: '' })}
-                  className="ml-4 text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   ×
                 </button>
@@ -226,9 +235,14 @@ function SettingsPageContent() {
 
           {/* Auth Token Banner */}
           {!tokenPresent && (
-            <div className="mb-4 p-4 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-900">
+            <div className="mb-6 p-4 rounded-2xl bg-yellow-50/80 backdrop-blur-sm border border-yellow-200/50 text-yellow-900 shadow-sm">
               <div className="flex items-center justify-between">
-                <span className="font-medium">You are not logged in. Please log in to connect accounts.</span>
+                <div className="flex items-center space-x-3">
+                  <div className="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <span className="text-yellow-600 text-sm">!</span>
+                  </div>
+                  <span className="font-semibold">You are not logged in. Please log in to connect accounts.</span>
+                </div>
                 <button
                   onClick={() => {
                     try {
@@ -236,7 +250,7 @@ function SettingsPageContent() {
                       setTokenPresent(!!t);
                     } catch {}
                   }}
-                  className="ml-4 text-yellow-700 hover:text-yellow-900 text-sm"
+                  className="text-yellow-700 hover:text-yellow-900 text-sm font-medium px-3 py-1 rounded-lg hover:bg-yellow-100/50 transition-colors"
                 >
                   Recheck
                 </button>
@@ -244,7 +258,7 @@ function SettingsPageContent() {
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow-sm">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/50">
           <div className="p-6 border-b border-gray-200">
             <h1 className="hidden md:block text-2xl font-semibold text-gray-900">Settings</h1>
             <p className="hidden md:block text-gray-600 mt-1">

@@ -1,14 +1,14 @@
 "use client";
 import { useState } from 'react';
 import { 
-  Bell, 
-  Check, 
-  X, 
-  AlertTriangle,
-  Info,
-  CheckCircle,
-  Clock
-} from 'lucide-react';
+  BellIcon, 
+  CheckIcon, 
+  XMarkIcon, 
+  ExclamationTriangleIcon,
+  InformationCircleIcon,
+  CheckCircleIcon,
+  ClockIcon
+} from '@heroicons/react/24/outline';
 
 interface Notification {
   id: string;
@@ -84,39 +84,26 @@ export default function BrandNotificationsPage() {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'success':
-        return <CheckCircle className="w-7 h-7 text-green-600" />;
+        return <CheckCircleIcon className="w-5 h-5 text-green-600" />;
       case 'warning':
-        return <AlertTriangle className="w-7 h-7 text-yellow-600" />;
+        return <ExclamationTriangleIcon className="w-5 h-5 text-yellow-600" />;
       case 'error':
-        return <X className="w-7 h-7 text-red-600" />;
+        return <XMarkIcon className="w-5 h-5 text-red-600" />;
       default:
-        return <Info className="w-7 h-7 text-blue-600" />;
+        return <InformationCircleIcon className="w-5 h-5 text-blue-600" />;
     }
   };
 
   const getNotificationBgColor = (type: string) => {
     switch (type) {
       case 'success':
-        return 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200';
+        return 'bg-green-50 border-green-200';
       case 'warning':
-        return 'bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-200';
+        return 'bg-yellow-50 border-yellow-200';
       case 'error':
-        return 'bg-gradient-to-r from-red-50 to-rose-50 border-red-200';
+        return 'bg-red-50 border-red-200';
       default:
-        return 'bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200';
-    }
-  };
-
-  const getNotificationIconBg = (type: string) => {
-    switch (type) {
-      case 'success':
-        return 'bg-gradient-to-br from-green-100 to-green-200';
-      case 'warning':
-        return 'bg-gradient-to-br from-yellow-100 to-yellow-200';
-      case 'error':
-        return 'bg-gradient-to-br from-red-100 to-red-200';
-      default:
-        return 'bg-gradient-to-br from-blue-100 to-blue-200';
+        return 'bg-blue-50 border-blue-200';
     }
   };
 
@@ -149,113 +136,101 @@ export default function BrandNotificationsPage() {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <div className="max-w-5xl mx-auto">
-      {/* Header */}
+    <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-black/10"></div>
-          <div className="relative z-10">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold mb-3">Notifications</h1>
-                <p className="text-blue-100 text-lg">Stay updated with your campaign activities</p>
-              </div>
-              <div className="flex items-center gap-4">
-                {unreadCount > 0 && (
-                  <button
-                    onClick={markAllAsRead}
-                    className="px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105 shadow-lg text-sm font-semibold"
-                  >
-                    Mark all as read
-                  </button>
-                )}
-                <div className="relative p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                  <Bell className="w-8 h-8 text-white" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse">
-                      {unreadCount}
-                    </span>
-                  )}
-                </div>
-              </div>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+            <p className="text-gray-600 mt-1">Stay updated with your campaign activities</p>
+          </div>
+          <div className="flex items-center gap-3">
+            {unreadCount > 0 && (
+              <button
+                onClick={markAllAsRead}
+                className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+              >
+                Mark all as read
+              </button>
+            )}
+            <div className="relative">
+              <BellIcon className="w-6 h-6 text-gray-600" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
             </div>
           </div>
-          {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
         </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="mb-8">
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-2 shadow-lg border border-gray-200/50 w-fit">
-          <div className="flex space-x-1">
-            {[
-              { key: 'all', label: 'All', count: notifications.length, icon: '📋' },
-              { key: 'unread', label: 'Unread', count: unreadCount, icon: '🔔' },
-              { key: 'read', label: 'Read', count: notifications.length - unreadCount, icon: '✅' }
-            ].map(({ key, label, count, icon }) => (
-              <button
-                key={key}
-                onClick={() => setFilter(key as any)}
-                className={`px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-300 flex items-center gap-2 ${
-                  filter === key
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }`}
-              >
-                <span className="text-base">{icon}</span>
-                {label} ({count})
-              </button>
-            ))}
-          </div>
+      <div className="mb-6">
+        <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit">
+          {[
+            { key: 'all', label: 'All', count: notifications.length },
+            { key: 'unread', label: 'Unread', count: unreadCount },
+            { key: 'read', label: 'Read', count: notifications.length - unreadCount }
+          ].map(({ key, label, count }) => (
+            <button
+              key={key}
+              onClick={() => setFilter(key as any)}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                filter === key
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              {label} ({count})
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Notifications List */}
-      <div className="space-y-6">
+      <div className="space-y-4">
         {filteredNotifications.length > 0 ? (
           filteredNotifications.map(notification => (
             <div
               key={notification.id}
-              className={`p-6 rounded-2xl border transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
+              className={`p-4 rounded-lg border transition-all duration-200 ${
                 notification.read 
-                  ? 'bg-white/80 backdrop-blur-sm border-gray-200/50' 
-                  : `${getNotificationBgColor(notification.type)} border-l-4 shadow-md`
+                  ? 'bg-white border-gray-200' 
+                  : `${getNotificationBgColor(notification.type)} border-l-4`
               }`}
             >
-              <div className="flex items-start gap-6">
-                <div className={`flex-shrink-0 p-3 rounded-xl ${getNotificationIconBg(notification.type)}`}>
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 mt-1">
                   {getNotificationIcon(notification.type)}
                 </div>
                 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h3 className={`text-lg font-semibold ${notification.read ? 'text-gray-700' : 'text-gray-900'}`}>
+                      <h3 className={`font-medium ${notification.read ? 'text-gray-700' : 'text-gray-900'}`}>
                         {notification.title}
                       </h3>
-                      <p className={`text-sm mt-2 leading-relaxed ${notification.read ? 'text-gray-500' : 'text-gray-600'}`}>
+                      <p className={`text-sm mt-1 ${notification.read ? 'text-gray-500' : 'text-gray-600'}`}>
                         {notification.message}
                       </p>
-                      <div className="flex items-center gap-6 mt-4">
-                        <span className="text-xs text-gray-400 flex items-center gap-2">
-                          <Clock className="w-4 h-4" />
+                      <div className="flex items-center gap-4 mt-2">
+                        <span className="text-xs text-gray-400 flex items-center gap-1">
+                          <ClockIcon className="w-3 h-3" />
                           {notification.timestamp}
                         </span>
                         {!notification.read && (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-500 to-purple-600 text-white animate-pulse">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                             New
                           </span>
                         )}
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-3 ml-6">
+                    <div className="flex items-center gap-2 ml-4">
                       {notification.action && (
                         <a
                           href={notification.action.href}
-                          className="px-4 py-2 text-sm text-blue-600 hover:text-blue-700 font-semibold bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-200 hover:scale-105"
+                          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                         >
                           {notification.action.label}
                         </a>
@@ -264,19 +239,19 @@ export default function BrandNotificationsPage() {
                       {!notification.read && (
                         <button
                           onClick={() => markAsRead(notification.id)}
-                          className="p-2.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all duration-200"
+                          className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
                           title="Mark as read"
                         >
-                          <Check className="w-5 h-5" />
+                          <CheckIcon className="w-4 h-4" />
                         </button>
                       )}
                       
                       <button
                         onClick={() => deleteNotification(notification.id)}
-                        className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200"
+                        className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                         title="Delete notification"
                       >
-                        <X className="w-5 h-5" />
+                        <XMarkIcon className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -285,18 +260,18 @@ export default function BrandNotificationsPage() {
             </div>
           ))
         ) : (
-          <div className="text-center py-16">
-            <div className="mx-auto h-20 w-20 text-gray-400 mb-6">
-              <Bell className="w-20 h-20" />
+          <div className="text-center py-12">
+            <div className="mx-auto h-12 w-12 text-gray-400 mb-4">
+              <BellIcon className="w-12 h-12" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">
+            <h3 className="text-sm font-medium text-gray-900 mb-2">
               {(() => {
                 if (filter === 'unread') return 'No unread notifications';
                 if (filter === 'read') return 'No read notifications';
                 return 'No notifications';
               })()}
             </h3>
-            <p className="text-gray-500 text-lg">
+            <p className="text-sm text-gray-500">
               {(() => {
                 if (filter === 'unread') return 'You\'re all caught up!';
                 if (filter === 'read') return 'No notifications have been read yet';
@@ -308,82 +283,57 @@ export default function BrandNotificationsPage() {
       </div>
 
       {/* Notification Settings */}
-      <div className="mt-12 bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-gray-200/50">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
-            <Bell className="w-6 h-6 text-white" />
-          </div>
-          <h3 className="text-2xl font-bold text-gray-900">Notification Settings</h3>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-6">
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-blue-50/30 rounded-xl border border-gray-200/50">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <span className="text-blue-600 text-lg">📧</span>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900">Email Notifications</h4>
-                  <p className="text-sm text-gray-500">Receive notifications via email</p>
-                </div>
+      <div className="mt-12 bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Notification Settings</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium text-gray-900">Email Notifications</h4>
+                <p className="text-sm text-gray-500">Receive notifications via email</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" defaultChecked className="sr-only peer" />
-                <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-blue-500 peer-checked:to-purple-600"></div>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                 <span className="sr-only">Toggle email notifications</span>
               </label>
             </div>
             
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-green-50/30 rounded-xl border border-gray-200/50">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <span className="text-green-600 text-lg">🔔</span>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900">Push Notifications</h4>
-                  <p className="text-sm text-gray-500">Receive browser push notifications</p>
-                </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium text-gray-900">Push Notifications</h4>
+                <p className="text-sm text-gray-500">Receive browser push notifications</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" defaultChecked className="sr-only peer" />
-                <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-green-500 peer-checked:to-emerald-600"></div>
-                <span className="sr-only">Toggle push notifications</span>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                <span className="sr-only">Toggle email notifications</span>
               </label>
             </div>
           </div>
           
-          <div className="space-y-6">
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-yellow-50/30 rounded-xl border border-gray-200/50">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-yellow-100 rounded-lg">
-                  <span className="text-yellow-600 text-lg">📱</span>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900">SMS Notifications</h4>
-                  <p className="text-sm text-gray-500">Receive SMS for urgent updates</p>
-                </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium text-gray-900">SMS Notifications</h4>
+                <p className="text-sm text-gray-500">Receive SMS for urgent updates</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" className="sr-only peer" />
-                <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yellow-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-yellow-500 peer-checked:to-amber-600"></div>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                 <span className="sr-only">Toggle SMS notifications</span>
               </label>
             </div>
             
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-purple-50/30 rounded-xl border border-gray-200/50">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <span className="text-purple-600 text-lg">📢</span>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900">Marketing Updates</h4>
-                  <p className="text-sm text-gray-500">Receive promotional content</p>
-                </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium text-gray-900">Marketing Updates</h4>
+                <p className="text-sm text-gray-500">Receive promotional content</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" defaultChecked className="sr-only peer" />
-                <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-purple-500 peer-checked:to-pink-600"></div>
-                <span className="sr-only">Toggle marketing notifications</span>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                <span className="sr-only">Toggle email notifications</span>
               </label>
             </div>
           </div>
