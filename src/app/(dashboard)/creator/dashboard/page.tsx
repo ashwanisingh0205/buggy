@@ -16,30 +16,23 @@ import {
   Eye,
   User
 } from 'lucide-react';
-import Sidebar from '@/Components/Creater/Sidebar';
+import CreatorLayout from '@/Components/Creater/CreatorLayout';
 import { apiRequest } from '@/lib/apiClient';
 import { authUtils } from '@/lib/auth';
 
 const Dashboard = () => {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [analytics, setAnalytics] = useState<Array<Record<string, any>>>([]);
-  const [lastUpdated, setLastUpdated] = useState<number>(0);
 
   const fetchAnalytics = async () => {
     try {
-      setError(null);
       const user = authUtils.getUser() as { id?: string } | null;
       const userId = user?.id || (authUtils as unknown as { getUserId?: () => string }).getUserId?.();
       if (!userId) throw new Error('Not authenticated');
       const res = await apiRequest<{ success: boolean; data: { analytics: any[] } }>(`/api/analytics/user/${userId}`);
       setAnalytics(res?.data?.analytics || []);
-      setLastUpdated(Date.now());
     } catch (e) {
-      setError((e as Error).message || 'Failed to load analytics');
+      console.error('Failed to fetch analytics:', e);
       setAnalytics([]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -78,6 +71,17 @@ const Dashboard = () => {
     return Object.entries(counts).map(([name, posts]) => ({ name, posts, color: colors[name] || '#999999' }));
   }, [analytics]);
 
+  const getPlatformColor = (platform: string) => {
+    const colorMap: Record<string, string> = {
+      instagram: '#E1306C',
+      facebook: '#1877F2',
+      twitter: '#1DA1F2',
+      linkedin: '#0077B5',
+      youtube: '#FF0000'
+    };
+    return colorMap[platform] || '#999999';
+  };
+
   const topPosts = useMemo(() => {
     return [...analytics]
       .map((a) => ({
@@ -86,12 +90,7 @@ const Dashboard = () => {
         content: a.content?.caption || a.post_id,
         platform: (a.platform || '').toString(),
         engagement: String((a.metrics?.likes || 0) + (a.metrics?.comments || 0) + (a.metrics?.shares || 0)),
-        platformColor:
-          a.platform === 'instagram' ? '#E1306C' :
-          a.platform === 'facebook' ? '#1877F2' :
-          a.platform === 'twitter' ? '#1DA1F2' :
-          a.platform === 'linkedin' ? '#0077B5' :
-          a.platform === 'youtube' ? '#FF0000' : '#999999'
+        platformColor: getPlatformColor(a.platform)
       }))
       .sort((p1, p2) => parseInt(p2.engagement) - parseInt(p1.engagement))
       .slice(0, 5);
@@ -109,32 +108,24 @@ const Dashboard = () => {
 
 
 
+  const headerActions = (
+    <>
+      <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2.5 rounded-xl flex items-center space-x-2 hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-sm hover:shadow-md">
+        <Plus className="w-4 h-4" />
+        <span>Create New Post</span>
+      </button>
+      <div className="w-10 h-10 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl flex items-center justify-center">
+        <User className="w-5 h-5 text-gray-600" />
+      </div>
+    </>
+  );
+
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      {/* Sidebar */}
-      <Sidebar />
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-hidden">
-        {/* Enhanced Header */}
-        <div className="bg-white/90 backdrop-blur-sm shadow-sm border-b border-gray-200/50 px-6 py-5 flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Dashboard Overview</h2>
-            <p className="text-sm text-gray-500 mt-1">Welcome back! Here's your content performance</p>
-          </div>
-          <div className="flex items-center space-x-4">
-            <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2.5 rounded-xl flex items-center space-x-2 hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-sm hover:shadow-md">
-              <Plus className="w-4 h-4" />
-              <span>Create New Post</span>
-            </button>
-            <div className="w-10 h-10 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl flex items-center justify-center">
-              <User className="w-5 h-5 text-gray-600" />
-            </div>
-          </div>
-        </div>
-
-        {/* Enhanced Dashboard Content */}
-        <div className="p-6 overflow-y-auto h-full">
+    <CreatorLayout 
+      title="Dashboard Overview" 
+      subtitle="Welcome back! Here's your content performance"
+      headerActions={headerActions}
+    >
           {/* Enhanced Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-gray-200/50 hover:shadow-md transition-all duration-200">
@@ -360,9 +351,7 @@ const Dashboard = () => {
               </table>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+    </CreatorLayout>
   );
 };
 

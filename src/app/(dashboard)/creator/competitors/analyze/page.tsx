@@ -191,7 +191,7 @@ const CompetitorAnalysisPage = () => {
           <div className="max-w-4xl mx-auto">
             {/* Header */}
             <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Competitor Analysis</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Competitors</h1>
               <p className="text-gray-600">
                 Analyze your competitors' social media strategies and get AI-powered insights
               </p>
